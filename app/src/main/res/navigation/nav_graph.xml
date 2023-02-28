@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/loginFragment">
+
+    <fragment
+        android:id="@+id/ListFragment"
+        android:name="com.github.aptemkov.locationreminder.presentation.ListFragment"
+        android:label="@string/first_fragment_label"
+        tools:layout="@layout/fragment_list">
+
+        <action
+            android:id="@+id/action_ListFragment_to_AddingFragment"
+            app:destination="@id/AddingFragment" />
+        <action
+            android:id="@+id/action_ListFragment_to_loginFragment"
+            app:destination="@id/loginFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/AddingFragment"
+        android:name="com.github.aptemkov.locationreminder.presentation.AddingFragment"
+        android:label="@string/second_fragment_label"
+        tools:layout="@layout/fragment_adding"/>
+    <fragment
+        android:id="@+id/loginFragment"
+        android:name="com.github.aptemkov.locationreminder.presentation.LoginFragment"
+        android:label="fragment_login"
+        tools:layout="@layout/fragment_login" >
+        <action
+            android:id="@+id/action_loginFragment_to_ListFragment"
+            app:destination="@id/ListFragment" />
+    </fragment>
+</navigation>

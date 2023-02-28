@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "131991903871",
+    "project_id": "location-reminder-378718",
+    "storage_bucket": "location-reminder-378718.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:131991903871:android:36141a474d6c0a8c98e94a",
+        "android_client_info": {
+          "package_name": "com.github.aptemkov.locationreminder"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "131991903871-526n2r28f756v663dq8f4ucvlmlq2lj3.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.github.aptemkov.locationreminder",
+            "certificate_hash": "f33ef1a7bd3d46e45f018df4c6dc4d8eeb2c9968"
+          }
+        },
+        {
+          "client_id": "131991903871-ba1mbitkbbn0k087p1kvp4dq2bjc4bvi.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyANWWAdx1dImmgu_ICAoYGTJXcf6LfLcwI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "131991903871-ba1mbitkbbn0k087p1kvp4dq2bjc4bvi.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
