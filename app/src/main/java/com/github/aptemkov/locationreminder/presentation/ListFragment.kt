@@ -8,14 +8,11 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.github.aptemkov.firebasetest.User
-import com.github.aptemkov.firebasetest.UsersAdapter
+import com.github.aptemkov.locationreminder.Task
+import com.github.aptemkov.locationreminder.TasksAdapter
 import com.github.aptemkov.locationreminder.R
 import com.github.aptemkov.locationreminder.databinding.FragmentListBinding
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.ktx.Firebase
 
 /**
  * A simple [Fragment] subclass as the default destination in the navigation.
@@ -25,7 +22,7 @@ class ListFragment : Fragment() {
     private var _binding: FragmentListBinding? = null
     private val binding get() = _binding!!
     private lateinit var firebaseStore: FirebaseFirestore
-    private var adapter: UsersAdapter? = null
+    private var adapter: TasksAdapter? = null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -40,7 +37,7 @@ class ListFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val adapter = UsersAdapter {
+        val adapter = TasksAdapter {
             Toast.makeText(context, "$it", Toast.LENGTH_SHORT).show()
         }
 
@@ -53,11 +50,11 @@ class ListFragment : Fragment() {
             this.adapter = adapter
         }
 
-        firebaseStore.collection("users").addSnapshotListener { value, error ->
+        firebaseStore.collection("tasks").addSnapshotListener { value, error ->
             if (value != null) {
-                val users = value.toObjects(User::class.java)
-                adapter.submitList(users)
-                Toast.makeText(context, "${users.size}", Toast.LENGTH_SHORT).show()
+                val tasks = value.toObjects(Task::class.java)
+                adapter.submitList(tasks)
+                Toast.makeText(context, "${tasks.size}", Toast.LENGTH_SHORT).show()
             }
             else {
                 Toast.makeText(context, "${error?.message}", Toast.LENGTH_SHORT).show()
@@ -67,9 +64,6 @@ class ListFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
-
-
-
     }
 
     override fun onDestroyView() {

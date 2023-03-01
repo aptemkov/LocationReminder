@@ -40,18 +40,34 @@ class LoginFragment : Fragment() {
         if (currentUser != null) {
             findNavController().navigate(R.id.action_loginFragment_to_ListFragment)
         }
+        binding.loginBtn.setOnClickListener {
+            signIn(
+                binding.email.text.toString().trim(),
+                binding.password.text.toString().trim(),
+            )
+        }
+
+    }
+
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
         binding.tvChangeAuthWay.setOnCheckedChangeListener { buttonView, isChecked ->
             when (isChecked) {
                 true -> {
+                    binding.tvChangeAuthWay.text = getString(R.string.account_register)
                     binding.authWayTv.text = getString(R.string.log_in)
                     binding.loginBtn.setOnClickListener {
                         signIn(
-                        binding.email.text.toString().trim(),
-                        binding.password.text.toString().trim(),
+                            binding.email.text.toString().trim(),
+                            binding.password.text.toString().trim(),
                         )
                     }
                 }
                 false -> {
+
+                    binding.tvChangeAuthWay.text = getString(R.string.account_log_in)
                     binding.authWayTv.text = getString(R.string.sign_up)
                     binding.loginBtn.setOnClickListener {
                         createAccount(
@@ -65,50 +81,41 @@ class LoginFragment : Fragment() {
     }
 
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
+    private fun createAccount(email: String, password: String) {
+        if (email.isNotBlank() && password.isNotBlank()) {
+            auth.createUserWithEmailAndPassword(email, password)
+                .addOnCompleteListener {
+                    if (it.isSuccessful) {
+                        // Sign in success, update UI with the signed-in user's information
+                        Log.d(TAG, "createUserWithEmail:success")
+                        findNavController().navigate(R.id.action_loginFragment_to_ListFragment)
+                    } else {
+                        // If sign in fails, display a message to the user.
+                        Log.w(TAG, "createUserWithEmail:failure", it.exception)
+                        Toast.makeText(context, "Authentication failed. ${it.exception}",
+                            Toast.LENGTH_SHORT).show()
 
-        binding.loginBtn.setOnClickListener {
-            createAccount(
-                binding.email.text.toString().trim(),
-                binding.password.text.toString().trim()
-            )
+                    }
+                }
         }
     }
 
-
-    private fun createAccount(email: String, password: String) {
-        auth.createUserWithEmailAndPassword(email, password)
-            .addOnCompleteListener {
-                if (it.isSuccessful) {
-                    // Sign in success, update UI with the signed-in user's information
-                    Log.d(TAG, "createUserWithEmail:success")
-                    findNavController().navigate(R.id.action_loginFragment_to_ListFragment)
-                } else {
-                    // If sign in fails, display a message to the user.
-                    Log.w(TAG, "createUserWithEmail:failure", it.exception)
-                    Toast.makeText(context, "Authentication failed.",
-                        Toast.LENGTH_SHORT).show()
-                    //signIn(email, password)
-
-                }
-            }
-    }
-
     private fun signIn(email: String, password: String) {
-        auth.signInWithEmailAndPassword(email, password)
-            .addOnCompleteListener {
-                if (it.isSuccessful) {
-                    // Sign in success, update UI with the signed-in user's information
-                    Log.d(TAG, "signInWithEmail:success")
-                    findNavController().navigate(R.id.action_loginFragment_to_ListFragment)
-                } else {
-                    // If sign in fails, display a message to the user.
-                    Log.w(TAG, "signInWithEmail:failure", it.exception)
-                    Toast.makeText(context, "Authentication failed.",
-                        Toast.LENGTH_SHORT).show()
+        if (email.isNotBlank() && password.isNotBlank()) {
+            auth.signInWithEmailAndPassword(email, password)
+                .addOnCompleteListener {
+                    if (it.isSuccessful) {
+                        // Sign in success, update UI with the signed-in user's information
+                        Log.d(TAG, "signInWithEmail:success")
+                        findNavController().navigate(R.id.action_loginFragment_to_ListFragment)
+                    } else {
+                        // If sign in fails, display a message to the user.
+                        Log.w(TAG, "signInWithEmail:failure", it.exception)
+                        Toast.makeText(context, "Authentication failed. ${it.exception}",
+                            Toast.LENGTH_SHORT).show()
+                    }
                 }
-            }
+        }
     }
 
 

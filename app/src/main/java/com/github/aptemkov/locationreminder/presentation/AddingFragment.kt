@@ -7,8 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.navigation.fragment.findNavController
-import com.github.aptemkov.firebasetest.User
-import com.github.aptemkov.locationreminder.R
+import com.github.aptemkov.locationreminder.Task
 import com.github.aptemkov.locationreminder.databinding.FragmentAddingBinding
 import com.google.firebase.firestore.FirebaseFirestore
 
@@ -27,7 +26,7 @@ class AddingFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
 
         firebaseStore = FirebaseFirestore.getInstance()
         _binding = FragmentAddingBinding.inflate(inflater, container, false)
@@ -39,19 +38,23 @@ class AddingFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         binding.buttonSaveUser.setOnClickListener {
-            saveUser(
-                name = binding.editTextName.text.toString(),
+            saveTask(
+                /*name = binding.editTextName.text.toString(),
                 lastName = binding.editTextLastName.text.toString(),
                 age = binding.editTextAge.text.toString().toInt(),
-                sex = "Мужской",
+                sex = "Мужской",*/
             )
         }
+        binding
     }
 
-    private fun saveUser(name: String, lastName: String, age: Int, sex: String) {
-        if (name.isNotBlank() && lastName.isNotBlank() && sex.isNotBlank()) {
-            firebaseStore.collection("users").add(
-                User(name, lastName, age, sex)
+    private fun saveTask(
+        //name: String, lastName: String, age: Int, sex: String
+    ) {
+        //if (name.isNotBlank() && lastName.isNotBlank() && sex.isNotBlank()) {
+            firebaseStore.collection("tasks").add(
+                //Task(name, lastName, age, sex)
+            Task()
             )
                 .addOnSuccessListener {
                     findNavController().popBackStack()
@@ -59,7 +62,7 @@ class AddingFragment : Fragment() {
                 .addOnFailureListener {
                     Toast.makeText(context, "Error: " + it.message, Toast.LENGTH_SHORT).show();
                 }
-        }
+        //}
     }
 
     override fun onDestroyView() {
