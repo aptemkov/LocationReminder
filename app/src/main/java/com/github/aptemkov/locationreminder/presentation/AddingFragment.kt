@@ -1,12 +1,15 @@
 package com.github.aptemkov.locationreminder.presentation
 
+import android.os.Build
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.annotation.RequiresApi
 import androidx.navigation.fragment.findNavController
+import com.github.aptemkov.locationreminder.R
 import com.github.aptemkov.locationreminder.Task
 import com.github.aptemkov.locationreminder.databinding.FragmentAddingBinding
 import com.google.firebase.firestore.FirebaseFirestore
@@ -34,6 +37,7 @@ class AddingFragment : Fragment() {
 
     }
 
+    @RequiresApi(Build.VERSION_CODES.M)
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -45,7 +49,9 @@ class AddingFragment : Fragment() {
                 sex = "Мужской",*/
             )
         }
-        binding
+        binding.locationLabel.setOnClickListener {
+            findNavController().navigate(R.id.action_AddingFragment_to_mapsFragment)
+        }
     }
 
     private fun saveTask(

@@ -59,4 +59,6 @@
     <string name="log_in">Log In</string>
     <string name="sign_up">Sign Up</string>
     <string name="continue_text">Continue</string>
+    <string name="done">Done</string>
+    <string name="action_logout">Logout</string>
 </resources>

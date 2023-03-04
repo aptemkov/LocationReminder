@@ -3,7 +3,9 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="com.github.aptemkov.locationreminder.presentation.MainActivity">
     <item
-        android:id="@+id/action_logout"
-        android:title="@string/action_logout"
-        app:showAsAction="never" />
+        android:id="@+id/action_done"
+        android:orderInCategory="1"
+        android:title="@string/done"
+        android:icon="@drawable/ic_done"
+        app:showAsAction="ifRoom" />
 </menu>

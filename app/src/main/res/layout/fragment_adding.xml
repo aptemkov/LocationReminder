@@ -39,63 +39,26 @@
             android:inputType="textMultiLine" />
     </com.google.android.material.textfield.TextInputLayout>
 
+
+    <!-- Select location -->
     <LinearLayout
-        android:layout_marginTop="8dp"
         android:id="@+id/locationLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:clickable="true"
-        android:focusable="true"
+        android:layout_marginTop="16dp"
         android:gravity="center"
         android:orientation="horizontal">
 
         <ImageView
-            android:layout_width="24dp"
-            android:layout_height="24dp"
-            android:layout_marginEnd="16dp"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
             android:src="@drawable/ic_location" />
 
         <TextView
-            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Select location"
-            android:textSize="16sp" />
-    </LinearLayout>
-
-    <LinearLayout
-        android:id="@+id/rangeLayout"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:clickable="true"
-        android:focusable="true"
-        android:gravity="center"
-        android:orientation="horizontal">
-
-        <ImageView
-            android:layout_width="24dp"
-            android:layout_height="24dp"
-            android:layout_marginEnd="8dp"
-            android:src="@drawable/ic_straighten"
-            android:rotation="-45"/>
-
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/range_label"
-            app:prefixText="Reminder range: "
-            app:boxBackgroundMode="none"
-            app:suffixText="meters"
-            app:placeholderTextColor="#ff0000"
+            android:id="@+id/location_label"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:expandedHintEnabled="false">
-
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/range"
-                android:text="75"
-
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:inputType="number" />
-        </com.google.android.material.textfield.TextInputLayout>
+            android:text="Select location"/>
 
     </LinearLayout>
 

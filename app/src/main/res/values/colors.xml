@@ -3,4 +3,6 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
     <color name="transparent">#00000000</color>
+    <color name="map_main_color">#406CBCDB</color>
+    <color name="map_stroke_color">#3973BB</color>
 </resources>

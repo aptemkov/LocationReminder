@@ -3,35 +3,43 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav_graph"
+    android:label="Select location"
     app:startDestination="@id/loginFragment">
 
     <fragment
         android:id="@+id/ListFragment"
         android:name="com.github.aptemkov.locationreminder.presentation.ListFragment"
-        android:label="@string/first_fragment_label"
+        android:label="Reminders"
         tools:layout="@layout/fragment_list">
 
         <action
             android:id="@+id/action_ListFragment_to_AddingFragment"
             app:destination="@id/AddingFragment" />
-        <action
-            android:id="@+id/action_ListFragment_to_loginFragment"
-            app:destination="@id/loginFragment" />
     </fragment>
     <fragment
         android:id="@+id/AddingFragment"
         android:name="com.github.aptemkov.locationreminder.presentation.AddingFragment"
-        android:label="@string/second_fragment_label"
-        tools:layout="@layout/fragment_adding"/>
+        android:label="New reminder"
+        tools:layout="@layout/fragment_adding">
+        <action
+            android:id="@+id/action_AddingFragment_to_mapsFragment"
+            app:destination="@id/mapsFragment" />
+    </fragment>
     <fragment
         android:id="@+id/loginFragment"
         android:name="com.github.aptemkov.locationreminder.presentation.LoginFragment"
-        android:label="fragment_login"
-        tools:layout="@layout/fragment_login" >
+        android:label="Authorization"
+        tools:layout="@layout/fragment_login">
         <action
             android:id="@+id/action_loginFragment_to_ListFragment"
             app:destination="@id/ListFragment"
+            app:launchSingleTop="false"
             app:popUpTo="@id/nav_graph"
-            app:popUpToInclusive="true" />
+            app:popUpToInclusive="false" />
     </fragment>
+    <fragment
+        android:id="@+id/mapsFragment"
+        android:name="com.github.aptemkov.locationreminder.presentation.MapsFragment"
+        android:label="Select location"
+        tools:layout="@layout/fragment_maps" />
 </navigation>

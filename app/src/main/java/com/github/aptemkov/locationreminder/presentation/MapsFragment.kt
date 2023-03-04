@@ -1,48 +1,120 @@
 package com.github.aptemkov.locationreminder.presentation
 
-import androidx.fragment.app.Fragment
-
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.util.Log
+import android.view.*
+import android.widget.Toast
+import androidx.core.content.ContextCompat
+import androidx.core.view.MenuHost
+import androidx.core.view.MenuProvider
+import androidx.fragment.app.Fragment
+import androidx.lifecycle.Lifecycle
+import androidx.navigation.NavHost
 import com.github.aptemkov.locationreminder.R
-
-import com.google.android.gms.maps.CameraUpdateFactory
-import com.google.android.gms.maps.GoogleMap
+import com.github.aptemkov.locationreminder.databinding.FragmentMapsBinding
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
-import com.google.android.gms.maps.model.LatLng
-import com.google.android.gms.maps.model.MarkerOptions
+import com.google.android.gms.maps.model.*
+import com.google.android.material.snackbar.Snackbar
+
 
 class MapsFragment : Fragment() {
 
+    private var _binding: FragmentMapsBinding? = null
+    private val binding get() = _binding!!
+
+    var marker: Marker? = null
+    var circle: Circle? = null
+    private var radius = 25.0
+
     private val callback = OnMapReadyCallback { googleMap ->
-        /**
-         * Manipulates the map once available.
-         * This callback is triggered when the map is ready to be used.
-         * This is where we can add markers or lines, add listeners or move the camera.
-         * In this case, we just add a marker near Sydney, Australia.
-         * If Google Play services is not installed on the device, the user will be prompted to
-         * install it inside the SupportMapFragment. This method will only be triggered once the
-         * user has installed Google Play services and returned to the app.
-         */
-        val sydney = LatLng(-34.0, 151.0)
-        googleMap.addMarker(MarkerOptions().position(sydney).title("Marker in Sydney"))
-        googleMap.moveCamera(CameraUpdateFactory.newLatLng(sydney))
+
+        googleMap.setOnCameraMoveListener {
+            //binding.selectBtn.isClickable = true
+            marker?.remove()
+            circle?.remove()
+
+            val cameraPosition = googleMap.cameraPosition.target
+
+            marker =
+                googleMap.addMarker(MarkerOptions()
+                    .position(cameraPosition)
+                    //.anchor(0.5f, .05f)
+                    .title("Current location")
+                )
+
+            circle = googleMap.addCircle(CircleOptions()
+                .center(LatLng(cameraPosition.latitude, cameraPosition.longitude))
+                .radius(radius)
+                .strokeColor(ContextCompat.getColor(requireActivity().applicationContext,
+                    R.color.map_stroke_color))
+                .fillColor(ContextCompat.getColor(requireActivity().applicationContext,
+                    R.color.map_main_color))
+                .strokeWidth(0.5f)
+            )
+
+            Log.d("MAP", "Map Coordinate: ${marker?.position}")
+
+        }
     }
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?,
-    ): View? {
-        return inflater.inflate(R.layout.fragment_maps, container, false)
+    ): View {
+        _binding = FragmentMapsBinding.inflate(inflater, container, false)
+        return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        setupMenu()
+
         val mapFragment = childFragmentManager.findFragmentById(R.id.map) as SupportMapFragment?
         mapFragment?.getMapAsync(callback)
+        circle?.radius = 50.0
+        binding.seekBar.value = 50.0f
+        binding.selectBtn.setOnClickListener {
+            Snackbar.make(
+                binding.root,
+                "${marker?.position} - radius ${circle?.radius}",
+                Snackbar.LENGTH_SHORT)
+                .show()
+        }
+        binding.seekBar.addOnChangeListener { slider, value, fromUser ->
+            binding.selectBtn.text = value.toInt().toString()
+            radius = value.toDouble()
+            circle?.radius = value.toDouble()
+
+        }
     }
+
+
+    private fun setupMenu() {
+        (requireActivity() as MenuHost).addMenuProvider(object : MenuProvider {
+
+            override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+                menuInflater.inflate(R.menu.menu_map, menu)
+            }
+
+            override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+                when(menuItem.itemId) {
+                    R.id.action_done -> {
+                        Toast.makeText(context, "Test", Toast.LENGTH_SHORT).show() }
+
+                }
+                return true
+            }
+
+        }, viewLifecycleOwner, Lifecycle.State.RESUMED)
+    }
+
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+    }
+
 }

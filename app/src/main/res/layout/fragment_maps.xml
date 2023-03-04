@@ -1,8 +1,44 @@
 <?xml version="1.0" encoding="utf-8"?>
-<fragment xmlns:android="http://schemas.android.com/apk/res/android"
+
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/map"
-    android:name="com.google.android.gms.maps.SupportMapFragment"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".presentation.MapsFragment" />
+    tools:context=".presentation.MainActivity">
+
+    <fragment
+        android:id="@+id/map"
+        android:name="com.google.android.gms.maps.SupportMapFragment"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:context=".presentation.MapsFragment" />
+
+    <com.google.android.material.slider.Slider
+        android:stepSize="10"
+        android:valueFrom="0"
+        android:valueTo="1000"
+        android:id="@+id/seekBar"
+        app:tickVisible="false"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:trackHeight="8dp"
+        app:layout_constraintTop_toTopOf="@id/selectBtn"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintBottom_toBottomOf="@id/selectBtn"
+        app:layout_constraintEnd_toStartOf="@id/selectBtn"/>
+
+    <Button
+        android:id="@+id/selectBtn"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toEndOf="@id/seekBar"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Select location"/>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
+
