@@ -6,16 +6,15 @@ import androidx.fragment.app.Fragment
 import android.widget.Toast
 import androidx.core.view.MenuHost
 import androidx.core.view.MenuProvider
-import androidx.core.view.children
 import androidx.lifecycle.Lifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.github.aptemkov.locationreminder.Task
+import com.github.aptemkov.locationreminder.domain.Task
 import com.github.aptemkov.locationreminder.R
+import com.github.aptemkov.locationreminder.data.TaskListRepositoryImpl
 import com.github.aptemkov.locationreminder.databinding.FragmentListBinding
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.Query
 import com.google.firebase.ktx.Firebase
 
 /**
@@ -23,9 +22,11 @@ import com.google.firebase.ktx.Firebase
  */
 class ListFragment : Fragment() {
 
+    private val repository = TaskListRepositoryImpl()
+
     private var _binding: FragmentListBinding? = null
     private val binding get() = _binding!!
-    private val firebaseStore: FirebaseFirestore by lazy { FirebaseFirestore.getInstance() }
+    //private val firebaseStore: FirebaseFirestore by lazy { FirebaseFirestore.getInstance() }
     private val auth by lazy { Firebase.auth }
 
     override fun onCreateView(
@@ -55,6 +56,8 @@ class ListFragment : Fragment() {
             this.adapter = adapter
         }
 
+        /* BEFORE CLEAN ARCHITECTURE
+
         firebaseStore
             .collection("users").document(auth.currentUser!!.uid)
             .collection("tasks")
@@ -66,6 +69,13 @@ class ListFragment : Fragment() {
             } else {
                 Toast.makeText(context, "${error?.message}", Toast.LENGTH_SHORT).show()
             }
+        }
+        AFTER CLEAN ARCHITECTURE
+        */
+
+        val tasksList = repository.getTasksList()
+        tasksList.observe(viewLifecycleOwner) {
+            adapter.submitList(it)
         }
     }
 

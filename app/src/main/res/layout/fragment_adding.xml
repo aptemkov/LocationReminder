@@ -14,7 +14,7 @@
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="16dp"
         android:layout_marginTop="8dp"
-        android:hint="Title">
+        android:hint="@string/title">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/titleEditText"
@@ -30,7 +30,7 @@
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="16dp"
         android:layout_marginTop="8dp"
-        android:hint="Description">
+        android:hint="@string/description">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/descriptionEditText"
@@ -58,15 +58,10 @@
             android:layout_height="wrap_content"
             android:id="@+id/location_label"
             android:layout_width="match_parent"
-            android:text="Select location"/>
+            android:textSize="18sp"
+            android:text="@string/select_location"/>
 
     </LinearLayout>
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/text_test"
-        android:text="a"/>
 
 
     <com.google.android.material.button.MaterialButton
@@ -78,6 +73,6 @@
         android:layout_marginTop="8dp"
         android:layout_marginEnd="8dp"
         android:layout_marginRight="8dp"
-        android:text="Save" />
+        android:text="@string/save" />
 
 </LinearLayout>

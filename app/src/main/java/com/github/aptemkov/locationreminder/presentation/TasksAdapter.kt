@@ -5,7 +5,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.github.aptemkov.locationreminder.Task
+import com.github.aptemkov.locationreminder.domain.Task
 import com.github.aptemkov.locationreminder.databinding.TaskItemBinding
 
 

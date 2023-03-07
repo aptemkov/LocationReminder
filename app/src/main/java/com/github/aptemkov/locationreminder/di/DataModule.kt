@@ -1,7 +1,9 @@
 package com.github.aptemkov.locationreminder.di
 
+import com.github.aptemkov.locationreminder.data.TaskListRepositoryImpl
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
+import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.ktx.Firebase
 import dagger.Module
 import dagger.Provides
@@ -15,8 +17,14 @@ object DataModule {
 
     @Provides
     @Singleton
-    fun provideFirebaseAuth():FirebaseAuth {
+    fun provideFirebaseAuth(): FirebaseAuth {
         return Firebase.auth
+    }
+
+    @Provides
+    @Singleton
+    fun provideFirebaseFirestore(): FirebaseFirestore {
+        return FirebaseFirestore.getInstance()
     }
 
 }

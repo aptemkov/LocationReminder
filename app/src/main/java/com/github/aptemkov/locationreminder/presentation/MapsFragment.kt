@@ -3,7 +3,6 @@ package com.github.aptemkov.locationreminder.presentation
 import android.os.Bundle
 import android.util.Log
 import android.view.*
-import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.core.view.MenuHost
 import androidx.core.view.MenuProvider
@@ -11,9 +10,9 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Lifecycle
 import androidx.navigation.fragment.findNavController
-import com.github.aptemkov.locationreminder.MapResponse
 import com.github.aptemkov.locationreminder.R
 import com.github.aptemkov.locationreminder.databinding.FragmentMapsBinding
+import com.github.aptemkov.locationreminder.domain.MapResponse
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.*
@@ -92,7 +91,8 @@ class MapsFragment : Fragment() {
         mapFragment?.getMapAsync(callback)
 
         binding.seekBar.value = radius.toFloat()
-        binding.selectBtn.setOnClickListener {
+        binding.radiusTextView.text = radius.toInt().toString()
+        binding.radiusTextView.setOnClickListener {
             Snackbar.make(
                 binding.root,
                 "${marker?.position} - radius ${circle?.radius}",
@@ -101,7 +101,7 @@ class MapsFragment : Fragment() {
         }
 
         binding.seekBar.addOnChangeListener { slider, value, fromUser ->
-            binding.selectBtn.text = value.toInt().toString()
+            binding.radiusTextView.text = value.toInt().toString()
             radius = value.toDouble()
             circle?.radius = value.toDouble()
         }

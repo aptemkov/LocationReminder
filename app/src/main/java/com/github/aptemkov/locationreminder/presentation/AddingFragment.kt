@@ -9,8 +9,10 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import com.github.aptemkov.locationreminder.R
-import com.github.aptemkov.locationreminder.Task
+import com.github.aptemkov.locationreminder.data.TaskListRepositoryImpl
+import com.github.aptemkov.locationreminder.domain.Task
 import com.github.aptemkov.locationreminder.databinding.FragmentAddingBinding
+import com.github.aptemkov.locationreminder.domain.TasksListRepository
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.auth.FirebaseAuth
@@ -18,14 +20,17 @@ import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.ktx.Firebase
 import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class AddingFragment : Fragment() {
 
+    private val repository = TaskListRepositoryImpl()
+
     private var _binding: FragmentAddingBinding? = null
     private val binding get() = _binding!!
     private val viewmodel: AddingReminderViewModel by activityViewModels()
-    private lateinit var firebaseStore: FirebaseFirestore
+    @Inject lateinit var firebaseStore: FirebaseFirestore
     private val auth: FirebaseAuth by lazy { Firebase.auth }
 
     override fun onCreateView(
@@ -33,7 +38,7 @@ class AddingFragment : Fragment() {
         savedInstanceState: Bundle?,
     ): View {
 
-        firebaseStore = FirebaseFirestore.getInstance()
+        //firebaseStore = FirebaseFirestore.getInstance()
         _binding = FragmentAddingBinding.inflate(inflater, container, false)
         return binding.root
 
@@ -44,7 +49,8 @@ class AddingFragment : Fragment() {
 
 
         viewmodel.mapResponse.observe(viewLifecycleOwner) {
-            binding.textTest.text = it.toString()
+            if (it != null)
+                binding.locationLabel.text = getString(R.string.location_selected)
         }
 
         binding.buttonSaveUser.setOnClickListener {
@@ -65,6 +71,8 @@ class AddingFragment : Fragment() {
     private fun saveTask(
         title: String, description: String, position: LatLng, radius: Double,
     ) {
+        /*  BEFORE CLEAN ARCHITECTURE
+
         if (title.isNotBlank() && description.isNotBlank()) {
             firebaseStore
                 .collection("users").document(auth.currentUser!!.uid)
@@ -90,6 +98,24 @@ class AddingFragment : Fragment() {
                 "All field must be filled",
                 Snackbar.LENGTH_SHORT)
                 .show()
+        }
+
+            AFTER CLEAN ARCHITECTURE
+        */
+
+        val task = Task(
+            title = title,
+            description = description,
+            latitude = position.latitude,
+            longitude = position.longitude,
+            reminderRange = radius,
+        )
+
+        val result = repository.addTask(task)
+
+        when(result.first) {
+            true -> findNavController().popBackStack()
+            else -> Toast.makeText(context, "Error: " + result.second?.message, Toast.LENGTH_SHORT).show();
         }
     }
 
