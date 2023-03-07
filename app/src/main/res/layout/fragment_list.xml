@@ -21,7 +21,7 @@
     </androidx.core.widget.NestedScrollView>
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/button_first"
+        android:id="@+id/newTaskFab"
         android:layout_width="wrap_content"
         android:layout_height="64dp"
         android:layout_margin="16dp"

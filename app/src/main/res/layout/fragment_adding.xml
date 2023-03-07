@@ -52,7 +52,7 @@
         <ImageView
             android:layout_width="48dp"
             android:layout_height="48dp"
-            android:src="@drawable/ic_location" />
+            android:src="@drawable/ic_location_plus" />
 
         <TextView
             android:layout_height="wrap_content"
@@ -61,6 +61,12 @@
             android:text="Select location"/>
 
     </LinearLayout>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/text_test"
+        android:text="a"/>
 
 
     <com.google.android.material.button.MaterialButton

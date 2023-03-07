@@ -1,11 +1,12 @@
-package com.github.aptemkov.locationreminder
+package com.github.aptemkov.locationreminder.presentation
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.github.aptemkov.locationreminder.databinding.UserItemBinding
+import com.github.aptemkov.locationreminder.Task
+import com.github.aptemkov.locationreminder.databinding.TaskItemBinding
 
 
 class TasksAdapter(private val onTaskClicked: (Task) -> Unit) :
@@ -13,7 +14,7 @@ class TasksAdapter(private val onTaskClicked: (Task) -> Unit) :
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TaskViewHolder {
         return TaskViewHolder(
-            UserItemBinding.inflate(
+            TaskItemBinding.inflate(
                 LayoutInflater.from(parent.context),
                 parent,
                 false
@@ -29,15 +30,14 @@ class TasksAdapter(private val onTaskClicked: (Task) -> Unit) :
         holder.bind(current)
     }
 
-    class TaskViewHolder(private var binding: UserItemBinding) :
+    class TaskViewHolder(private var binding: TaskItemBinding) :
         RecyclerView.ViewHolder(binding.root) {
 
         fun bind(task: Task) {
             binding.apply {
-                /*textViewName.text = task.name
-                textViewLastName.text = task.lastName
-                textViewAge.text = task.age.toString()
-                textViewSex.text = task.sex*/
+                textViewTitle.text = task.title
+                textViewDescription.text = task.description
+                activitySwitch.isChecked = task.isActive
             }
         }
     }
@@ -49,7 +49,7 @@ class TasksAdapter(private val onTaskClicked: (Task) -> Unit) :
             }
 
             override fun areContentsTheSame(oldTask: Task, newTask: Task): Boolean {
-                return oldTask.id == newTask.id
+                return oldTask.createdAt == newTask.createdAt
             }
         }
     }

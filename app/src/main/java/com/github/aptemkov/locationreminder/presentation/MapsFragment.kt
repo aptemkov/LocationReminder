@@ -8,29 +8,46 @@ import androidx.core.content.ContextCompat
 import androidx.core.view.MenuHost
 import androidx.core.view.MenuProvider
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Lifecycle
-import androidx.navigation.NavHost
+import androidx.navigation.fragment.findNavController
+import com.github.aptemkov.locationreminder.MapResponse
 import com.github.aptemkov.locationreminder.R
 import com.github.aptemkov.locationreminder.databinding.FragmentMapsBinding
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.*
 import com.google.android.material.snackbar.Snackbar
+import dagger.hilt.android.AndroidEntryPoint
 
-
+@AndroidEntryPoint
 class MapsFragment : Fragment() {
+
+    private val viewModel: AddingReminderViewModel by activityViewModels()
 
     private var _binding: FragmentMapsBinding? = null
     private val binding get() = _binding!!
 
     var marker: Marker? = null
     var circle: Circle? = null
-    private var radius = 25.0
+    private var radius: Double = 50.0
 
     private val callback = OnMapReadyCallback { googleMap ->
 
+        val startPosition = LatLng(0.0, 0.0)
+        marker =
+            googleMap.addMarker(MarkerOptions()
+                .position(startPosition)
+                .title(getString(R.string.current_location))
+            )
+
+        circle = googleMap.addCircle(CircleOptions()
+            .center(startPosition)
+            .radius(radius)
+        )
+
+
         googleMap.setOnCameraMoveListener {
-            //binding.selectBtn.isClickable = true
             marker?.remove()
             circle?.remove()
 
@@ -39,8 +56,7 @@ class MapsFragment : Fragment() {
             marker =
                 googleMap.addMarker(MarkerOptions()
                     .position(cameraPosition)
-                    //.anchor(0.5f, .05f)
-                    .title("Current location")
+                    .title(getString(R.string.current_location))
                 )
 
             circle = googleMap.addCircle(CircleOptions()
@@ -53,7 +69,7 @@ class MapsFragment : Fragment() {
                 .strokeWidth(0.5f)
             )
 
-            Log.d("MAP", "Map Coordinate: ${marker?.position}")
+            Log.d("MAP", "Map position: ${marker?.position}")
 
         }
     }
@@ -74,8 +90,8 @@ class MapsFragment : Fragment() {
 
         val mapFragment = childFragmentManager.findFragmentById(R.id.map) as SupportMapFragment?
         mapFragment?.getMapAsync(callback)
-        circle?.radius = 50.0
-        binding.seekBar.value = 50.0f
+
+        binding.seekBar.value = radius.toFloat()
         binding.selectBtn.setOnClickListener {
             Snackbar.make(
                 binding.root,
@@ -83,12 +99,13 @@ class MapsFragment : Fragment() {
                 Snackbar.LENGTH_SHORT)
                 .show()
         }
+
         binding.seekBar.addOnChangeListener { slider, value, fromUser ->
             binding.selectBtn.text = value.toInt().toString()
             radius = value.toDouble()
             circle?.radius = value.toDouble()
-
         }
+
     }
 
 
@@ -100,9 +117,18 @@ class MapsFragment : Fragment() {
             }
 
             override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
-                when(menuItem.itemId) {
+                when (menuItem.itemId) {
                     R.id.action_done -> {
-                        Toast.makeText(context, "Test", Toast.LENGTH_SHORT).show() }
+                        val response =
+                            MapResponse(
+                                marker?.position ?: LatLng(0.0, 0.0),
+                                circle?.radius ?: 50.0
+                            )
+
+                        viewModel.sendResponse(response)
+                        findNavController().popBackStack()
+                    }
+                    android.R.id.home -> { findNavController().popBackStack() }
 
                 }
                 return true

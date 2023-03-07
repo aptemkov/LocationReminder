@@ -6,15 +6,16 @@ import androidx.fragment.app.Fragment
 import android.widget.Toast
 import androidx.core.view.MenuHost
 import androidx.core.view.MenuProvider
+import androidx.core.view.children
 import androidx.lifecycle.Lifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.github.aptemkov.locationreminder.Task
-import com.github.aptemkov.locationreminder.TasksAdapter
 import com.github.aptemkov.locationreminder.R
 import com.github.aptemkov.locationreminder.databinding.FragmentListBinding
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.Query
 import com.google.firebase.ktx.Firebase
 
 /**
@@ -25,7 +26,6 @@ class ListFragment : Fragment() {
     private var _binding: FragmentListBinding? = null
     private val binding get() = _binding!!
     private val firebaseStore: FirebaseFirestore by lazy { FirebaseFirestore.getInstance() }
-    private var adapter: TasksAdapter? = null
     private val auth by lazy { Firebase.auth }
 
     override fun onCreateView(
@@ -46,7 +46,7 @@ class ListFragment : Fragment() {
             Toast.makeText(context, "$it", Toast.LENGTH_SHORT).show()
         }
 
-        binding.buttonFirst.setOnClickListener {
+        binding.newTaskFab.setOnClickListener {
             findNavController().navigate(R.id.action_ListFragment_to_AddingFragment)
         }
 
@@ -55,11 +55,14 @@ class ListFragment : Fragment() {
             this.adapter = adapter
         }
 
-        firebaseStore.collection("tasks").addSnapshotListener { value, error ->
+        firebaseStore
+            .collection("users").document(auth.currentUser!!.uid)
+            .collection("tasks")
+            //.orderBy("date", Query.Direction.DESCENDING)
+            .addSnapshotListener { value, error ->
             if (value != null) {
                 val tasks = value.toObjects(Task::class.java)
                 adapter.submitList(tasks)
-                Toast.makeText(context, "${tasks.size}", Toast.LENGTH_SHORT).show()
             } else {
                 Toast.makeText(context, "${error?.message}", Toast.LENGTH_SHORT).show()
             }
@@ -77,21 +80,15 @@ class ListFragment : Fragment() {
                 return when (menuItem.itemId) {
                     R.id.action_logout -> {
                         auth.signOut()
+                        findNavController().popBackStack()
                         true
                     }
-                    else -> {
-                        return true
-                    }
+                    else -> { return true }
                 }
-
             }
 
         }, viewLifecycleOwner, Lifecycle.State.RESUMED)
 
-    }
-
-    override fun onResume() {
-        super.onResume()
     }
 
     override fun onDestroyView() {

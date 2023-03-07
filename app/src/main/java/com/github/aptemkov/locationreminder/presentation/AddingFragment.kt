@@ -1,34 +1,36 @@
 package com.github.aptemkov.locationreminder.presentation
 
-import android.os.Build
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
-import androidx.annotation.RequiresApi
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import com.github.aptemkov.locationreminder.R
 import com.github.aptemkov.locationreminder.Task
 import com.github.aptemkov.locationreminder.databinding.FragmentAddingBinding
+import com.google.android.gms.maps.model.LatLng
+import com.google.android.material.snackbar.Snackbar
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.ktx.Firebase
+import dagger.hilt.android.AndroidEntryPoint
 
-/**
- * A simple [Fragment] subclass as the second destination in the navigation.
- */
+@AndroidEntryPoint
 class AddingFragment : Fragment() {
 
     private var _binding: FragmentAddingBinding? = null
-    private lateinit var firebaseStore: FirebaseFirestore
-
-    // This property is only valid between onCreateView and
-    // onDestroyView.
     private val binding get() = _binding!!
+    private val viewmodel: AddingReminderViewModel by activityViewModels()
+    private lateinit var firebaseStore: FirebaseFirestore
+    private val auth: FirebaseAuth by lazy { Firebase.auth }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
+        savedInstanceState: Bundle?,
     ): View {
 
         firebaseStore = FirebaseFirestore.getInstance()
@@ -37,39 +39,60 @@ class AddingFragment : Fragment() {
 
     }
 
-    @RequiresApi(Build.VERSION_CODES.M)
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+
+        viewmodel.mapResponse.observe(viewLifecycleOwner) {
+            binding.textTest.text = it.toString()
+        }
+
         binding.buttonSaveUser.setOnClickListener {
             saveTask(
-                /*name = binding.editTextName.text.toString(),
-                lastName = binding.editTextLastName.text.toString(),
-                age = binding.editTextAge.text.toString().toInt(),
-                sex = "Мужской",*/
+                title = binding.titleEditText.text.toString(),
+                description = binding.descriptionEditText.text.toString(),
+                position = viewmodel.mapResponse.value?.position ?: LatLng(0.0, 0.0),
+                radius = viewmodel.mapResponse.value?.radius ?: 0.0,
             )
         }
+
         binding.locationLabel.setOnClickListener {
             findNavController().navigate(R.id.action_AddingFragment_to_mapsFragment)
         }
+
     }
 
     private fun saveTask(
-        //name: String, lastName: String, age: Int, sex: String
+        title: String, description: String, position: LatLng, radius: Double,
     ) {
-        //if (name.isNotBlank() && lastName.isNotBlank() && sex.isNotBlank()) {
-            firebaseStore.collection("tasks").add(
-                //Task(name, lastName, age, sex)
-            Task()
-            )
+        if (title.isNotBlank() && description.isNotBlank()) {
+            firebaseStore
+                .collection("users").document(auth.currentUser!!.uid)
+                .collection("tasks")
+                .add(
+                    Task(
+                        title = title,
+                        description = description,
+                        latitude = position.latitude,
+                        longitude = position.longitude,
+                        reminderRange = radius,
+                    )
+                )
                 .addOnSuccessListener {
                     findNavController().popBackStack()
                 }
                 .addOnFailureListener {
                     Toast.makeText(context, "Error: " + it.message, Toast.LENGTH_SHORT).show();
                 }
-        //}
+        } else {
+            Snackbar.make(
+                binding.root,
+                "All field must be filled",
+                Snackbar.LENGTH_SHORT)
+                .show()
+        }
     }
+
 
     override fun onDestroyView() {
         super.onDestroyView()

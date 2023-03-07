@@ -1,23 +1,19 @@
 package com.github.aptemkov.locationreminder
 
-data class Task(
-    /*
-    var name: String,
-    var lastName: String,
-    var age: Int,
-    var sex: String,
-    */
-    val id: Long = 0L,
-    val title: String,
-    val description: String,
-    val latitude: Double,
-    val longitude: Double,
-    val isActive: Boolean,
-    val reminderRange: Int,
-    val createdAt: Long,
+import java.util.*
 
-) {
-    constructor() : this(
+data class Task(
+
+    val title: String = "",
+    val description: String = "",
+    val latitude: Double = 0.0,
+    val longitude: Double = 0.0,
+    val isActive: Boolean = true,
+    val reminderRange: Double = 0.0,
+    val createdAt: Long = Calendar.getInstance().timeInMillis,
+
+    ) {
+    /*constructor() : this(
         title = "Title",
         description = "Description",
         latitude= 0.0,
@@ -25,5 +21,5 @@ data class Task(
         isActive = true,
         reminderRange = 0,
         createdAt = 0L
-    )
+    )*/
 }
