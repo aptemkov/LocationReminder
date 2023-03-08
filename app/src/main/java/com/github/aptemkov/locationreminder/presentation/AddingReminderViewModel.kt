@@ -3,28 +3,30 @@ package com.github.aptemkov.locationreminder.presentation
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.github.aptemkov.locationreminder.domain.MapResponse
+import com.github.aptemkov.locationreminder.domain.models.MapResponse
+import com.github.aptemkov.locationreminder.domain.models.Task
+import com.github.aptemkov.locationreminder.domain.usecases.SaveTaskUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 
 @HiltViewModel
-class AddingReminderViewModel @Inject constructor() : ViewModel() {
+class AddingReminderViewModel @Inject constructor(
+    private val saveTaskUseCase: SaveTaskUseCase,
+) : ViewModel() {
 
-    init {
-        println("TEST $mapResponse")
+    private val saveResultMutable = MutableLiveData<Pair<Boolean, Exception?>>()
+    val saveResultLiveData: LiveData<Pair<Boolean, Exception?>> get() = saveResultMutable
+
+    private val mapResponseMutable = MutableLiveData<MapResponse>()
+    val mapResponseLiveData: LiveData<MapResponse> get() = mapResponseMutable
+
+    fun saveLocation(response: MapResponse) {
+        mapResponseMutable.value = response
     }
 
-
-    private val mutableMapResponse = MutableLiveData<MapResponse>()
-    val mapResponse: LiveData<MapResponse> get() = mutableMapResponse
-
-    fun sendResponse(response: MapResponse) {
-        println("\n\n\n before " + response)
-        mutableMapResponse.value = response
-        println("\n\n\n after (mutable) " + mutableMapResponse.value)
-        println("\n\n\n after (not mutable) " + mapResponse.value)
-
+    fun saveTask(task: Task) {
+        val result = saveTaskUseCase.execute(task)
+        saveResultMutable.value = result
     }
-
 
 }

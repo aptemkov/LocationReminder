@@ -1,20 +1,20 @@
-package com.github.aptemkov.locationreminder.data
+package com.github.aptemkov.locationreminder.data.storage
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import com.github.aptemkov.locationreminder.domain.Task
-import com.github.aptemkov.locationreminder.domain.TasksListRepository
+import com.github.aptemkov.locationreminder.domain.models.Task
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.ktx.Firebase
 
-class TaskListRepositoryImpl : TasksListRepository {
+class FirebaseTaskStorage : TaskStorage {
+
     //TODO(@Inject properties)
     private val firebaseFirestore: FirebaseFirestore = FirebaseFirestore.getInstance()
     private val auth: FirebaseAuth = Firebase.auth
 
-    override fun addTask(task: Task): Pair<Boolean, Exception?> {
+    override fun add(task: Task): Pair<Boolean, Exception?> {
         var result: Boolean = true
         var exception: Exception? = null
         firebaseFirestore
@@ -32,33 +32,29 @@ class TaskListRepositoryImpl : TasksListRepository {
         return Pair(result, exception)
     }
 
-    override fun deleteTask(task: Task) {
+    override fun delete(task: Task) {
         TODO("Not yet implemented")
     }
 
-    override fun editTask(task: Task) {
+    override fun edit(task: Task) {
         TODO("Not yet implemented")
     }
 
-    override fun getTask(position: Int): Task {
+    override fun get(position: Int): Task {
         TODO("Not yet implemented")
     }
 
-    override fun getTasksList(): LiveData<List<Task>> {
+    override fun getList(): LiveData<List<Task>> {
         val tasksList = MutableLiveData<List<Task>>()
         firebaseFirestore
             .collection("users").document(auth.currentUser!!.uid)
             .collection("tasks")
-            //.orderBy("date", Query.Direction.DESCENDING)
+            //.orderBy("createdAt", "desc")
             .addSnapshotListener { value, error ->
                 if (value != null) {
                     tasksList.value = value.toObjects(Task::class.java)
                 }
             }
         return tasksList
-
-        TODO("Not yet implemented")
     }
-
-
 }

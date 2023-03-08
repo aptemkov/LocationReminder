@@ -9,36 +9,24 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import com.github.aptemkov.locationreminder.R
-import com.github.aptemkov.locationreminder.data.TaskListRepositoryImpl
-import com.github.aptemkov.locationreminder.domain.Task
 import com.github.aptemkov.locationreminder.databinding.FragmentAddingBinding
-import com.github.aptemkov.locationreminder.domain.TasksListRepository
+import com.github.aptemkov.locationreminder.domain.models.Task
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.material.snackbar.Snackbar
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.ktx.auth
-import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.ktx.Firebase
 import dagger.hilt.android.AndroidEntryPoint
-import javax.inject.Inject
 
 @AndroidEntryPoint
 class AddingFragment : Fragment() {
 
-    private val repository = TaskListRepositoryImpl()
 
     private var _binding: FragmentAddingBinding? = null
     private val binding get() = _binding!!
     private val viewmodel: AddingReminderViewModel by activityViewModels()
-    @Inject lateinit var firebaseStore: FirebaseFirestore
-    private val auth: FirebaseAuth by lazy { Firebase.auth }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?,
     ): View {
-
-        //firebaseStore = FirebaseFirestore.getInstance()
         _binding = FragmentAddingBinding.inflate(inflater, container, false)
         return binding.root
 
@@ -48,17 +36,26 @@ class AddingFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
 
-        viewmodel.mapResponse.observe(viewLifecycleOwner) {
+        viewmodel.mapResponseLiveData.observe(viewLifecycleOwner) {
             if (it != null)
                 binding.locationLabel.text = getString(R.string.location_selected)
         }
 
         binding.buttonSaveUser.setOnClickListener {
+
+            val latitude = viewmodel.mapResponseLiveData.value?.latitude
+            val longtitude = viewmodel.mapResponseLiveData.value?.longitude
+
+            val position: LatLng? = if(
+                    latitude != null && longtitude != null
+            ) LatLng(latitude, longtitude)
+            else null
+
             saveTask(
                 title = binding.titleEditText.text.toString(),
                 description = binding.descriptionEditText.text.toString(),
-                position = viewmodel.mapResponse.value?.position ?: LatLng(0.0, 0.0),
-                radius = viewmodel.mapResponse.value?.radius ?: 0.0,
+                position = position,
+                radius = viewmodel.mapResponseLiveData.value?.radius,
             )
         }
 
@@ -69,7 +66,7 @@ class AddingFragment : Fragment() {
     }
 
     private fun saveTask(
-        title: String, description: String, position: LatLng, radius: Double,
+        title: String, description: String, position: LatLng?, radius: Double?,
     ) {
         /*  BEFORE CLEAN ARCHITECTURE
 
@@ -103,7 +100,17 @@ class AddingFragment : Fragment() {
             AFTER CLEAN ARCHITECTURE
         */
 
-        val task = Task(
+        if (title.isBlank() || description.isBlank()) {
+            makeSnackBar(getString(R.string.all_fields_must_be_filled))
+            return
+        }
+
+        if (position == null || radius == null) {
+            makeSnackBar(getString(R.string.location_must_be_selected))
+            return
+        }
+
+        val task = com.github.aptemkov.locationreminder.domain.models.Task(
             title = title,
             description = description,
             latitude = position.latitude,
@@ -111,14 +118,25 @@ class AddingFragment : Fragment() {
             reminderRange = radius,
         )
 
-        val result = repository.addTask(task)
+        viewmodel.saveTask(task)
 
-        when(result.first) {
-            true -> findNavController().popBackStack()
-            else -> Toast.makeText(context, "Error: " + result.second?.message, Toast.LENGTH_SHORT).show();
+        viewmodel.saveResultLiveData.observe(viewLifecycleOwner) {
+            if(it.first == true) {
+                findNavController().popBackStack()
+            } else {
+                Toast.makeText(context, "Error: " + it.second?.message, Toast.LENGTH_SHORT)
+                    .show()
+            }
         }
     }
 
+    fun makeSnackBar(text: String) {
+        Snackbar.make(
+            binding.root,
+            text,
+            Snackbar.LENGTH_SHORT)
+            .show()
+    }
 
     override fun onDestroyView() {
         super.onDestroyView()

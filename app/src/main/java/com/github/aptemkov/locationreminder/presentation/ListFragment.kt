@@ -1,28 +1,37 @@
 package com.github.aptemkov.locationreminder.presentation
 
 import android.os.Bundle
+import android.util.Log
 import android.view.*
 import androidx.fragment.app.Fragment
 import android.widget.Toast
 import androidx.core.view.MenuHost
 import androidx.core.view.MenuProvider
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Lifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.github.aptemkov.locationreminder.domain.Task
 import com.github.aptemkov.locationreminder.R
-import com.github.aptemkov.locationreminder.data.TaskListRepositoryImpl
+import com.github.aptemkov.locationreminder.data.repository.TaskRepositoryImpl
+import com.github.aptemkov.locationreminder.data.storage.FirebaseTaskStorage
 import com.github.aptemkov.locationreminder.databinding.FragmentListBinding
+import com.github.aptemkov.locationreminder.domain.usecases.GetTaskListUseCase
 import com.google.firebase.auth.ktx.auth
-import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.ktx.Firebase
+import dagger.hilt.android.AndroidEntryPoint
 
-/**
- * A simple [Fragment] subclass as the default destination in the navigation.
- */
+@AndroidEntryPoint
 class ListFragment : Fragment() {
 
-    private val repository = TaskListRepositoryImpl()
+    private val viewModel: ListViewModel by activityViewModels()
+
+    private val repository by lazy {
+        com.github.aptemkov.locationreminder.data.repository.TaskRepositoryImpl(
+            taskStorage = com.github.aptemkov.locationreminder.data.storage.FirebaseTaskStorage()
+        )
+    }
+    private val useCase =
+        com.github.aptemkov.locationreminder.domain.usecases.GetTaskListUseCase(repository)
 
     private var _binding: FragmentListBinding? = null
     private val binding get() = _binding!!
@@ -73,8 +82,13 @@ class ListFragment : Fragment() {
         AFTER CLEAN ARCHITECTURE
         */
 
-        val tasksList = repository.getTasksList()
-        tasksList.observe(viewLifecycleOwner) {
+//        val tasksList = useCase.execute()
+//        tasksList.observe(viewLifecycleOwner) {
+//            adapter.submitList(it)
+//            Log.i("TEST", "$it")
+//        }
+
+        viewModel.tasksLiveData.observe(viewLifecycleOwner) {
             adapter.submitList(it)
         }
     }

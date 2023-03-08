@@ -1,4 +1,4 @@
-package com.github.aptemkov.locationreminder.domain
+package com.github.aptemkov.locationreminder.domain.models
 
 import java.util.*
 

@@ -12,7 +12,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.navigation.fragment.findNavController
 import com.github.aptemkov.locationreminder.R
 import com.github.aptemkov.locationreminder.databinding.FragmentMapsBinding
-import com.github.aptemkov.locationreminder.domain.MapResponse
+import com.github.aptemkov.locationreminder.domain.models.MapResponse
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.*
@@ -121,11 +121,12 @@ class MapsFragment : Fragment() {
                     R.id.action_done -> {
                         val response =
                             MapResponse(
-                                marker?.position ?: LatLng(0.0, 0.0),
+                                latitude = marker?.position?.latitude ?: 0.0,
+                                longitude = marker?.position?.longitude ?: 0.0,
                                 circle?.radius ?: 50.0
                             )
 
-                        viewModel.sendResponse(response)
+                        viewModel.saveLocation(response)
                         findNavController().popBackStack()
                     }
                     android.R.id.home -> { findNavController().popBackStack() }

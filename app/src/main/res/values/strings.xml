@@ -67,4 +67,6 @@
     <string name="select_location">Select location</string>
     <string name="save">Save</string>
     <string name="location_selected">Location selected</string>
+    <string name="all_fields_must_be_filled">All field must be filled</string>
+    <string name="location_must_be_selected">Location must be selected!</string>
 </resources>

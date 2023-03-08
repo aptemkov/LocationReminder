@@ -1,4 +1,4 @@
-package com.github.aptemkov.locationreminder.presentation
+package com.github.aptemkov.locationreminder
 
 import android.os.Bundle
 import com.google.android.material.snackbar.Snackbar

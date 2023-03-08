@@ -1,10 +1,10 @@
 package com.github.aptemkov.locationreminder.di
 
-import com.github.aptemkov.locationreminder.data.TaskListRepositoryImpl
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.ktx.auth
+import com.github.aptemkov.locationreminder.data.repository.TaskRepositoryImpl
+import com.github.aptemkov.locationreminder.data.storage.FirebaseTaskStorage
+import com.github.aptemkov.locationreminder.data.storage.TaskStorage
+import com.github.aptemkov.locationreminder.domain.repository.TaskRepository
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.ktx.Firebase
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -15,16 +15,28 @@ import javax.inject.Singleton
 @InstallIn(SingletonComponent::class)
 object DataModule {
 
-    @Provides
+    /*@Provides
     @Singleton
     fun provideFirebaseAuth(): FirebaseAuth {
         return Firebase.auth
-    }
+    }*/
 
     @Provides
     @Singleton
     fun provideFirebaseFirestore(): FirebaseFirestore {
         return FirebaseFirestore.getInstance()
+    }
+
+    @Provides
+    @Singleton
+    fun provideTaskStorage(/*@ApplicationContext context: Context*/): com.github.aptemkov.locationreminder.data.storage.TaskStorage {
+        return com.github.aptemkov.locationreminder.data.storage.FirebaseTaskStorage()
+    }
+
+    @Provides
+    @Singleton
+    fun provideTaskRepositoryImpl(taskStorage: com.github.aptemkov.locationreminder.data.storage.TaskStorage): com.github.aptemkov.locationreminder.domain.repository.TaskRepository {
+        return com.github.aptemkov.locationreminder.data.repository.TaskRepositoryImpl(taskStorage = taskStorage)
     }
 
 }
