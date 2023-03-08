@@ -1,12 +1,11 @@
 package com.github.aptemkov.locationreminder.presentation
 
 import android.os.Bundle
-import android.util.Log
 import android.view.*
-import androidx.fragment.app.Fragment
 import android.widget.Toast
 import androidx.core.view.MenuHost
 import androidx.core.view.MenuProvider
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Lifecycle
 import androidx.navigation.fragment.findNavController
@@ -26,12 +25,11 @@ class ListFragment : Fragment() {
     private val viewModel: ListViewModel by activityViewModels()
 
     private val repository by lazy {
-        com.github.aptemkov.locationreminder.data.repository.TaskRepositoryImpl(
-            taskStorage = com.github.aptemkov.locationreminder.data.storage.FirebaseTaskStorage()
+        TaskRepositoryImpl(
+            taskStorage = FirebaseTaskStorage()
         )
     }
-    private val useCase =
-        com.github.aptemkov.locationreminder.domain.usecases.GetTaskListUseCase(repository)
+    private val useCase = GetTaskListUseCase(repository)
 
     private var _binding: FragmentListBinding? = null
     private val binding get() = _binding!!

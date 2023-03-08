@@ -10,10 +10,10 @@ import javax.inject.Inject
 
 @HiltViewModel
 class ListViewModel @Inject constructor(
-    getTaskListUseCase: com.github.aptemkov.locationreminder.domain.usecases.GetTaskListUseCase,
+    getTaskListUseCase: GetTaskListUseCase,
 ) : ViewModel() {
 
-    private val tasksMutable: LiveData<List<com.github.aptemkov.locationreminder.domain.models.Task>> = getTaskListUseCase.execute()
-    val tasksLiveData: LiveData<List<com.github.aptemkov.locationreminder.domain.models.Task>> get() = tasksMutable
+    private val tasksMutable: LiveData<List<Task>> = getTaskListUseCase.execute()
+    val tasksLiveData: LiveData<List<Task>> get() = tasksMutable
 
 }

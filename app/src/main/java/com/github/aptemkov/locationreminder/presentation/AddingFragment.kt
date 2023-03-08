@@ -110,7 +110,7 @@ class AddingFragment : Fragment() {
             return
         }
 
-        val task = com.github.aptemkov.locationreminder.domain.models.Task(
+        val task = Task(
             title = title,
             description = description,
             latitude = position.latitude,
