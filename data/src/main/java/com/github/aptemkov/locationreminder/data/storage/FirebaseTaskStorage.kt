@@ -1,11 +1,11 @@
 package com.github.aptemkov.locationreminder.data.storage
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import com.github.aptemkov.locationreminder.domain.models.Task
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.ListenerRegistration
+import com.google.firebase.firestore.Query
 import com.google.firebase.ktx.Firebase
 
 class FirebaseTaskStorage : TaskStorage {
@@ -13,6 +13,27 @@ class FirebaseTaskStorage : TaskStorage {
     //TODO(@Inject properties)
     private val firebaseFirestore: FirebaseFirestore = FirebaseFirestore.getInstance()
     private val auth: FirebaseAuth = Firebase.auth
+    private var listener: ListenerRegistration? = null
+
+
+    override fun startTasksListener(result: (List<Task>) -> Unit) {
+        val firestore = FirebaseFirestore.getInstance()
+
+        val collection = firestore
+            .collection("users")
+            .document(auth.currentUser!!.uid)
+            .collection("tasks")
+            .orderBy("createdAt", Query.Direction.DESCENDING)
+
+
+        listener = collection.addSnapshotListener { value, error ->
+            if (value != null) {
+                val list = value.toObjects(Task::class.java)
+
+                result(list)
+            }
+        }
+    }
 
     override fun add(task: Task): Pair<Boolean, Exception?> {
         var result: Boolean = true
@@ -44,17 +65,5 @@ class FirebaseTaskStorage : TaskStorage {
         TODO("Not yet implemented")
     }
 
-    override fun getList(): LiveData<List<Task>> {
-        val tasksList = MutableLiveData<List<Task>>()
-        firebaseFirestore
-            .collection("users").document(auth.currentUser!!.uid)
-            .collection("tasks")
-            //.orderBy("createdAt", "desc")
-            .addSnapshotListener { value, error ->
-                if (value != null) {
-                    tasksList.value = value.toObjects(Task::class.java)
-                }
-            }
-        return tasksList
-    }
+
 }

@@ -1,6 +1,5 @@
 package com.github.aptemkov.locationreminder.data.repository
 
-import androidx.lifecycle.LiveData
 import com.github.aptemkov.locationreminder.data.storage.TaskStorage
 import com.github.aptemkov.locationreminder.domain.models.Task
 import com.github.aptemkov.locationreminder.domain.repository.TaskRepository
@@ -23,8 +22,7 @@ class TaskRepositoryImpl(private val taskStorage: TaskStorage) : TaskRepository 
         return taskStorage.get(position)
     }
 
-    override fun getTasksList(): LiveData<List<Task>> {
-        return taskStorage.getList()
+    override fun startTasksListener(result: (List<Task>) -> Unit) {
+        return taskStorage.startTasksListener(result)
     }
-
 }

@@ -5,8 +5,8 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.github.aptemkov.locationreminder.domain.models.Task
 import com.github.aptemkov.locationreminder.databinding.TaskItemBinding
+import com.github.aptemkov.locationreminder.domain.models.Task
 
 
 class TasksAdapter(private val onTaskClicked: (Task) -> Unit) :

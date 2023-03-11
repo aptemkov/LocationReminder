@@ -14,7 +14,7 @@
       },
       "oauth_client": [
         {
-          "client_id": "131991903871-526n2r28f756v663dq8f4ucvlmlq2lj3.apps.googleusercontent.com",
+          "client_id": "131991903871-j8ug09c0gh0he2p5gmanu56j1c66io5u.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "com.github.aptemkov.locationreminder",
@@ -22,7 +22,7 @@
           }
         },
         {
-          "client_id": "131991903871-ba1mbitkbbn0k087p1kvp4dq2bjc4bvi.apps.googleusercontent.com",
+          "client_id": "131991903871-g1gj86fchovhvnl637ujgn02jtrune17.apps.googleusercontent.com",
           "client_type": 3
         }
       ],

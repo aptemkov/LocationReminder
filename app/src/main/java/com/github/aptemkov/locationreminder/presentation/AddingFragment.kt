@@ -68,37 +68,6 @@ class AddingFragment : Fragment() {
     private fun saveTask(
         title: String, description: String, position: LatLng?, radius: Double?,
     ) {
-        /*  BEFORE CLEAN ARCHITECTURE
-
-        if (title.isNotBlank() && description.isNotBlank()) {
-            firebaseStore
-                .collection("users").document(auth.currentUser!!.uid)
-                .collection("tasks")
-                .add(
-                    Task(
-                        title = title,
-                        description = description,
-                        latitude = position.latitude,
-                        longitude = position.longitude,
-                        reminderRange = radius,
-                    )
-                )
-                .addOnSuccessListener {
-                    findNavController().popBackStack()
-                }
-                .addOnFailureListener {
-                    Toast.makeText(context, "Error: " + it.message, Toast.LENGTH_SHORT).show();
-                }
-        } else {
-            Snackbar.make(
-                binding.root,
-                "All field must be filled",
-                Snackbar.LENGTH_SHORT)
-                .show()
-        }
-
-            AFTER CLEAN ARCHITECTURE
-        */
 
         if (title.isBlank() || description.isBlank()) {
             makeSnackBar(getString(R.string.all_fields_must_be_filled))
@@ -130,7 +99,7 @@ class AddingFragment : Fragment() {
         }
     }
 
-    fun makeSnackBar(text: String) {
+    private fun makeSnackBar(text: String) {
         Snackbar.make(
             binding.root,
             text,

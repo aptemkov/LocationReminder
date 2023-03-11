@@ -1,6 +1,7 @@
 package com.github.aptemkov.locationreminder.presentation
 
 import android.os.Bundle
+import android.util.Log
 import android.view.*
 import android.widget.Toast
 import androidx.core.view.MenuHost
@@ -14,13 +15,20 @@ import com.github.aptemkov.locationreminder.R
 import com.github.aptemkov.locationreminder.data.repository.TaskRepositoryImpl
 import com.github.aptemkov.locationreminder.data.storage.FirebaseTaskStorage
 import com.github.aptemkov.locationreminder.databinding.FragmentListBinding
-import com.github.aptemkov.locationreminder.domain.usecases.GetTaskListUseCase
+import com.github.aptemkov.locationreminder.domain.usecases.SubscribeToTaskListUseCase
 import com.google.firebase.auth.ktx.auth
+import com.google.firebase.firestore.ListenerRegistration
 import com.google.firebase.ktx.Firebase
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class ListFragment : Fragment() {
+
+
+    ///
+    private var listener: ListenerRegistration? = null
+    ///
+
 
     private val viewModel: ListViewModel by activityViewModels()
 
@@ -29,10 +37,11 @@ class ListFragment : Fragment() {
             taskStorage = FirebaseTaskStorage()
         )
     }
-    private val useCase = GetTaskListUseCase(repository)
+    private val useCase = SubscribeToTaskListUseCase(repository)
 
     private var _binding: FragmentListBinding? = null
     private val binding get() = _binding!!
+
     //private val firebaseStore: FirebaseFirestore by lazy { FirebaseFirestore.getInstance() }
     private val auth by lazy { Firebase.auth }
 
@@ -63,33 +72,13 @@ class ListFragment : Fragment() {
             this.adapter = adapter
         }
 
-        /* BEFORE CLEAN ARCHITECTURE
-
-        firebaseStore
-            .collection("users").document(auth.currentUser!!.uid)
-            .collection("tasks")
-            //.orderBy("date", Query.Direction.DESCENDING)
-            .addSnapshotListener { value, error ->
-            if (value != null) {
-                val tasks = value.toObjects(Task::class.java)
-                adapter.submitList(tasks)
-            } else {
-                Toast.makeText(context, "${error?.message}", Toast.LENGTH_SHORT).show()
-            }
-        }
-        AFTER CLEAN ARCHITECTURE
-        */
-
-//        val tasksList = useCase.execute()
-//        tasksList.observe(viewLifecycleOwner) {
-//            adapter.submitList(it)
-//            Log.i("TEST", "$it")
-//        }
-
         viewModel.tasksLiveData.observe(viewLifecycleOwner) {
             adapter.submitList(it)
+            Log.i("TEST fr. observed list", "$it")
         }
+
     }
+
 
     private fun setupMenu() {
 
@@ -105,7 +94,9 @@ class ListFragment : Fragment() {
                         findNavController().popBackStack()
                         true
                     }
-                    else -> { return true }
+                    else -> {
+                        return true
+                    }
                 }
             }
 

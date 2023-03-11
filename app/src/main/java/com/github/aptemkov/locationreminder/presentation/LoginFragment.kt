@@ -120,7 +120,7 @@ class LoginFragment : Fragment() {
 
 
     companion object {
-        private const val TAG = "EmailPassword"
+        private const val TAG = "AUTHORIZATION"
     }
 
 

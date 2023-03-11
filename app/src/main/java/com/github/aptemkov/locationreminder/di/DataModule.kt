@@ -29,14 +29,14 @@ object DataModule {
 
     @Provides
     @Singleton
-    fun provideTaskStorage(/*@ApplicationContext context: Context*/): com.github.aptemkov.locationreminder.data.storage.TaskStorage {
-        return com.github.aptemkov.locationreminder.data.storage.FirebaseTaskStorage()
+    fun provideTaskStorage(/*@ApplicationContext context: Context*/): TaskStorage {
+        return FirebaseTaskStorage()
     }
 
     @Provides
     @Singleton
-    fun provideTaskRepositoryImpl(taskStorage: com.github.aptemkov.locationreminder.data.storage.TaskStorage): com.github.aptemkov.locationreminder.domain.repository.TaskRepository {
-        return com.github.aptemkov.locationreminder.data.repository.TaskRepositoryImpl(taskStorage = taskStorage)
+    fun provideTaskRepositoryImpl(taskStorage: TaskStorage): TaskRepository {
+        return TaskRepositoryImpl(taskStorage = taskStorage)
     }
 
 }

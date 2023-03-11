@@ -1,13 +1,12 @@
 package com.github.aptemkov.locationreminder.domain.usecases
 
-import androidx.lifecycle.LiveData
 import com.github.aptemkov.locationreminder.domain.models.Task
 import com.github.aptemkov.locationreminder.domain.repository.TaskRepository
 
-class GetTaskListUseCase(private val taskRepository: TaskRepository) {
+class SubscribeToTaskListUseCase(private val taskRepository: TaskRepository) {
 
-    fun execute(): LiveData<List<Task>> {
-        return taskRepository.getTasksList()
+    fun execute(result: (List<Task>) -> Unit) {
+        return taskRepository.startTasksListener(result)
     }
 
 }
