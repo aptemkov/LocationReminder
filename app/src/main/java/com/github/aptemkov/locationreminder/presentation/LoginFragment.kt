@@ -1,15 +1,17 @@
 package com.github.aptemkov.locationreminder.presentation
 
+import android.content.Context.INPUT_METHOD_SERVICE
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
+import android.view.inputmethod.InputMethodManager
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import com.github.aptemkov.locationreminder.R
 import com.github.aptemkov.locationreminder.databinding.FragmentLoginBinding
+import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
@@ -40,12 +42,7 @@ class LoginFragment : Fragment() {
         if (currentUser != null) {
             findNavController().navigate(R.id.action_loginFragment_to_ListFragment)
         }
-        binding.loginBtn.setOnClickListener {
-            signIn(
-                binding.email.text.toString().trim(),
-                binding.password.text.toString().trim(),
-            )
-        }
+        setLoginScreen()
 
     }
 
@@ -56,27 +53,36 @@ class LoginFragment : Fragment() {
         binding.tvChangeAuthWay.setOnCheckedChangeListener { buttonView, isChecked ->
             when (isChecked) {
                 true -> {
-                    binding.tvChangeAuthWay.text = getString(R.string.account_register)
-                    binding.authWayTv.text = getString(R.string.log_in)
-                    binding.loginBtn.setOnClickListener {
-                        signIn(
-                            binding.email.text.toString().trim(),
-                            binding.password.text.toString().trim(),
-                        )
-                    }
+                    setLoginScreen()
                 }
                 false -> {
-
-                    binding.tvChangeAuthWay.text = getString(R.string.account_log_in)
-                    binding.authWayTv.text = getString(R.string.sign_up)
-                    binding.loginBtn.setOnClickListener {
-                        createAccount(
-                            binding.email.text.toString().trim(),
-                            binding.password.text.toString().trim(),
-                        )
-                    }
+                    setRegisterScreen()
                 }
             }
+        }
+    }
+
+    private fun setLoginScreen() {
+        binding.tvChangeAuthWay.text = getString(R.string.account_register)
+        binding.authWayTv.text = getString(R.string.log_in)
+        binding.loginBtn.setOnClickListener {
+            hideKeyboard()
+            signIn(
+                binding.email.text.toString().trim(),
+                binding.password.text.toString().trim(),
+            )
+        }
+    }
+
+    private fun setRegisterScreen() {
+        binding.tvChangeAuthWay.text = getString(R.string.account_log_in)
+        binding.authWayTv.text = getString(R.string.sign_up)
+        binding.loginBtn.setOnClickListener {
+            hideKeyboard()
+            createAccount(
+                binding.email.text.toString().trim(),
+                binding.password.text.toString().trim(),
+            )
         }
     }
 
@@ -86,14 +92,12 @@ class LoginFragment : Fragment() {
             auth.createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener {
                     if (it.isSuccessful) {
-                        // Sign in success, update UI with the signed-in user's information
-                        Log.d(TAG, "createUserWithEmail:success")
+                        Log.d(TAG, "Reg:success")
                         findNavController().navigate(R.id.action_loginFragment_to_ListFragment)
                     } else {
                         // If sign in fails, display a message to the user.
-                        Log.w(TAG, "createUserWithEmail:failure", it.exception)
-                        Toast.makeText(context, "Authentication failed. ${it.exception}",
-                            Toast.LENGTH_SHORT).show()
+                        Log.i(TAG, "Reg:failure", it.exception)
+                        makeSnackBar("${it.exception?.message}")
 
                     }
                 }
@@ -105,14 +109,13 @@ class LoginFragment : Fragment() {
             auth.signInWithEmailAndPassword(email, password)
                 .addOnCompleteListener {
                     if (it.isSuccessful) {
-                        // Sign in success, update UI with the signed-in user's information
-                        Log.d(TAG, "signInWithEmail:success")
+                        Log.d(TAG, "LogIn:success")
                         findNavController().navigate(R.id.action_loginFragment_to_ListFragment)
                     } else {
                         // If sign in fails, display a message to the user.
-                        Log.w(TAG, "signInWithEmail:failure", it.exception)
-                        Toast.makeText(context, "Authentication failed. ${it.exception}",
-                            Toast.LENGTH_SHORT).show()
+                        Log.w(TAG, "LogIn:failure", it.exception)
+                        makeSnackBar("${it.exception?.message}")
+
                     }
                 }
         }
@@ -121,6 +124,20 @@ class LoginFragment : Fragment() {
 
     companion object {
         private const val TAG = "AUTHORIZATION"
+    }
+
+    private fun hideKeyboard() {
+        val inputMethodManager = requireActivity().getSystemService(INPUT_METHOD_SERVICE) as
+                InputMethodManager
+        inputMethodManager.hideSoftInputFromWindow(requireActivity().currentFocus?.windowToken, 0)
+    }
+
+    private fun makeSnackBar(text: String) {
+        Snackbar.make(
+            binding.root,
+            text,
+            Snackbar.LENGTH_LONG)
+            .show()
     }
 
 
