@@ -2,7 +2,6 @@ package com.github.aptemkov.locationreminder.presentation
 
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.view.*
 import android.widget.Toast
 import androidx.core.view.MenuHost
@@ -14,13 +13,7 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.github.aptemkov.locationreminder.MainActivity
 import com.github.aptemkov.locationreminder.R
-import com.github.aptemkov.locationreminder.data.repository.TaskRepositoryImpl
-import com.github.aptemkov.locationreminder.data.storage.FirebaseTaskStorage
 import com.github.aptemkov.locationreminder.databinding.FragmentListBinding
-import com.github.aptemkov.locationreminder.domain.usecases.SubscribeToTaskListUseCase
-import com.google.firebase.auth.ktx.auth
-import com.google.firebase.firestore.ListenerRegistration
-import com.google.firebase.ktx.Firebase
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -31,8 +24,6 @@ class ListFragment : Fragment() {
 
     private var _binding: FragmentListBinding? = null
     private val binding get() = _binding!!
-
-    private val auth by lazy { Firebase.auth }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -62,6 +53,10 @@ class ListFragment : Fragment() {
         }
 
         viewModel.tasksLiveData.observe(viewLifecycleOwner) {
+            binding.listEmptyLayout.root.visibility =
+                if(it.isEmpty()) { View.VISIBLE }
+                else { View.INVISIBLE }
+
             adapter.submitList(it)
         }
 

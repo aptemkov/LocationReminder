@@ -70,4 +70,5 @@
     <string name="all_fields_must_be_filled">All field must be filled</string>
     <string name="location_must_be_selected">Location must be selected!</string>
     <string name="smthg_went_wrong_message">Oops.Something went wrong</string>
+    <string name="list_empty_layout_text">Saved reminders will show up here, so you can easily view them here later</string>
 </resources>
