@@ -32,13 +32,6 @@ class ListFragment : Fragment() {
 
     private val viewModel: ListViewModel by activityViewModels()
 
-    private val repository by lazy {
-        TaskRepositoryImpl(
-            taskStorage = FirebaseTaskStorage()
-        )
-    }
-    private val useCase = SubscribeToTaskListUseCase(repository)
-
     private var _binding: FragmentListBinding? = null
     private val binding get() = _binding!!
 

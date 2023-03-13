@@ -37,7 +37,7 @@ class TasksAdapter(private val onTaskClicked: (Task) -> Unit) :
             binding.apply {
                 textViewTitle.text = task.title
                 textViewDescription.text = task.description
-                activitySwitch.isChecked = task.isActive
+                activitySwitch.isChecked = task.active
             }
         }
     }

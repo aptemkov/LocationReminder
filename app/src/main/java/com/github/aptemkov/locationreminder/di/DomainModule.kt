@@ -1,6 +1,9 @@
 package com.github.aptemkov.locationreminder.di
 
+import com.github.aptemkov.locationreminder.domain.repository.AuthorizationRepository
 import com.github.aptemkov.locationreminder.domain.repository.TaskRepository
+import com.github.aptemkov.locationreminder.domain.usecases.LogInUseCase
+import com.github.aptemkov.locationreminder.domain.usecases.RegisterUseCase
 import com.github.aptemkov.locationreminder.domain.usecases.SubscribeToTaskListUseCase
 import com.github.aptemkov.locationreminder.domain.usecases.SaveTaskUseCase
 import dagger.Module
@@ -21,6 +24,16 @@ object DomainModule {
     @Provides
     fun provideSaveTaskUseCase(taskRepository: TaskRepository): SaveTaskUseCase {
         return SaveTaskUseCase(taskRepository = taskRepository)
+    }
+
+    @Provides
+    fun provideLogInUseCase(authorizationRepository: AuthorizationRepository): LogInUseCase {
+        return LogInUseCase(repository = authorizationRepository)
+    }
+
+    @Provides
+    fun provideRegisterUseCase(authorizationRepository: AuthorizationRepository): RegisterUseCase {
+        return RegisterUseCase(repository = authorizationRepository)
     }
 
 }

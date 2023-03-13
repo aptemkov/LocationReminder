@@ -2,12 +2,12 @@ package com.github.aptemkov.locationreminder.presentation
 
 import android.content.Context.INPUT_METHOD_SERVICE
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import com.github.aptemkov.locationreminder.R
 import com.github.aptemkov.locationreminder.databinding.FragmentLoginBinding
@@ -15,14 +15,15 @@ import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class LoginFragment : Fragment() {
 
     private var _binding: FragmentLoginBinding? = null
-
-
     private val binding get() = _binding!!
     private lateinit var auth: FirebaseAuth
+    private val viewModel: LoginViewModel by viewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -35,8 +36,9 @@ class LoginFragment : Fragment() {
 
     }
 
-    override fun onStart() {
-        super.onStart()
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
         val currentUser = auth.currentUser
         println(currentUser)
         if (currentUser != null) {
@@ -44,11 +46,19 @@ class LoginFragment : Fragment() {
         }
         setLoginScreen()
 
-    }
+        viewModel.errorLiveData.observe(viewLifecycleOwner) {
 
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
+            when(it.first) {
+                true -> {
+                    findNavController().navigate(R.id.action_loginFragment_to_ListFragment)
+                }
+                false -> {
+                    it.second?.message?.let { exceptionMessage ->
+                        makeSnackBar(exceptionMessage)
+                    }
+                }
+            }
+        }
 
         binding.tvChangeAuthWay.setOnCheckedChangeListener { buttonView, isChecked ->
             when (isChecked) {
@@ -63,67 +73,46 @@ class LoginFragment : Fragment() {
     }
 
     private fun setLoginScreen() {
-        binding.tvChangeAuthWay.text = getString(R.string.account_register)
-        binding.authWayTv.text = getString(R.string.log_in)
-        binding.loginBtn.setOnClickListener {
-            hideKeyboard()
-            signIn(
-                binding.email.text.toString().trim(),
-                binding.password.text.toString().trim(),
-            )
+        with(binding) {
+            tvChangeAuthWay.text = getString(R.string.account_register)
+            authWayTv.text = getString(R.string.log_in)
+            loginBtn.setOnClickListener {
+                    signIn(
+                        email.text.toString().trim(),
+                        password.text.toString().trim(),
+                    )
+                hideKeyboard()
+            }
         }
+
+
     }
 
     private fun setRegisterScreen() {
-        binding.tvChangeAuthWay.text = getString(R.string.account_log_in)
-        binding.authWayTv.text = getString(R.string.sign_up)
-        binding.loginBtn.setOnClickListener {
-            hideKeyboard()
-            createAccount(
-                binding.email.text.toString().trim(),
-                binding.password.text.toString().trim(),
-            )
+        with(binding) {
+            tvChangeAuthWay.text = getString(R.string.account_log_in)
+            authWayTv.text = getString(R.string.sign_up)
+            loginBtn.setOnClickListener {
+                createAccount(
+                    email.text.toString().trim(),
+                    password.text.toString().trim(),
+                )
+                hideKeyboard()
+            }
         }
     }
 
 
     private fun createAccount(email: String, password: String) {
         if (email.isNotBlank() && password.isNotBlank()) {
-            auth.createUserWithEmailAndPassword(email, password)
-                .addOnCompleteListener {
-                    if (it.isSuccessful) {
-                        Log.d(TAG, "Reg:success")
-                        findNavController().navigate(R.id.action_loginFragment_to_ListFragment)
-                    } else {
-                        // If sign in fails, display a message to the user.
-                        Log.i(TAG, "Reg:failure", it.exception)
-                        makeSnackBar("${it.exception?.message}")
-
-                    }
-                }
+            viewModel.createAccount(email, password)
         }
     }
 
     private fun signIn(email: String, password: String) {
         if (email.isNotBlank() && password.isNotBlank()) {
-            auth.signInWithEmailAndPassword(email, password)
-                .addOnCompleteListener {
-                    if (it.isSuccessful) {
-                        Log.d(TAG, "LogIn:success")
-                        findNavController().navigate(R.id.action_loginFragment_to_ListFragment)
-                    } else {
-                        // If sign in fails, display a message to the user.
-                        Log.w(TAG, "LogIn:failure", it.exception)
-                        makeSnackBar("${it.exception?.message}")
-
-                    }
-                }
+            viewModel.signIn(email, password)
         }
-    }
-
-
-    companion object {
-        private const val TAG = "AUTHORIZATION"
     }
 
     private fun hideKeyboard() {

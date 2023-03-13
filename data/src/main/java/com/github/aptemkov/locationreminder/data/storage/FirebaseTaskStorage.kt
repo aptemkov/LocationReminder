@@ -7,12 +7,13 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ListenerRegistration
 import com.google.firebase.firestore.Query
 import com.google.firebase.ktx.Firebase
+import javax.inject.Inject
 
-class FirebaseTaskStorage : TaskStorage {
+class FirebaseTaskStorage @Inject constructor(
+    private val auth: FirebaseAuth,
+    private val firebaseFirestore: FirebaseFirestore,
+) : TaskStorage {
 
-    //TODO(@Inject properties)
-    private val firebaseFirestore: FirebaseFirestore = FirebaseFirestore.getInstance()
-    private val auth: FirebaseAuth = Firebase.auth
     private var listener: ListenerRegistration? = null
 
 

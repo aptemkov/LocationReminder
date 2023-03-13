@@ -8,7 +8,7 @@ data class Task(
     val description: String = "",
     val latitude: Double = 0.0,
     val longitude: Double = 0.0,
-    val isActive: Boolean = true,
+    val active: Boolean = true,
     val reminderRange: Double = 0.0,
     val createdAt: Long = Calendar.getInstance().timeInMillis,
 
