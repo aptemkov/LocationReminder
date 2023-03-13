@@ -1,5 +1,6 @@
 package com.github.aptemkov.locationreminder.presentation
 
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.*
@@ -11,6 +12,7 @@ import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Lifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.github.aptemkov.locationreminder.MainActivity
 import com.github.aptemkov.locationreminder.R
 import com.github.aptemkov.locationreminder.data.repository.TaskRepositoryImpl
 import com.github.aptemkov.locationreminder.data.storage.FirebaseTaskStorage
@@ -25,17 +27,11 @@ import dagger.hilt.android.AndroidEntryPoint
 class ListFragment : Fragment() {
 
 
-    ///
-    private var listener: ListenerRegistration? = null
-    ///
-
-
     private val viewModel: ListViewModel by activityViewModels()
 
     private var _binding: FragmentListBinding? = null
     private val binding get() = _binding!!
 
-    //private val firebaseStore: FirebaseFirestore by lazy { FirebaseFirestore.getInstance() }
     private val auth by lazy { Firebase.auth }
 
     override fun onCreateView(
@@ -61,17 +57,27 @@ class ListFragment : Fragment() {
         }
 
         with(binding.recyclerView) {
-            layoutManager = LinearLayoutManager(this.context)
+            this.layoutManager = LinearLayoutManager(this.context)
             this.adapter = adapter
         }
 
         viewModel.tasksLiveData.observe(viewLifecycleOwner) {
             adapter.submitList(it)
-            Log.i("TEST fr. observed list", "$it")
+        }
+
+        viewModel.isAuthorizated.observe(viewLifecycleOwner) {
+            if(it == false) {
+                restartApp()
+            }
         }
 
     }
 
+    private fun restartApp() {
+        val intent = Intent(requireContext(), MainActivity::class.java)
+        requireActivity().finish()
+        startActivity(intent)
+    }
 
     private fun setupMenu() {
 
@@ -83,7 +89,7 @@ class ListFragment : Fragment() {
             override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
                 return when (menuItem.itemId) {
                     R.id.action_logout -> {
-                        auth.signOut()
+                        viewModel.signOut()
                         findNavController().popBackStack()
                         true
                     }
