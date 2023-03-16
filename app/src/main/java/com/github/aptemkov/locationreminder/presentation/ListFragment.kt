@@ -4,6 +4,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.*
 import android.widget.Toast
+import androidx.core.app.ActivityCompat
 import androidx.core.view.MenuHost
 import androidx.core.view.MenuProvider
 import androidx.fragment.app.Fragment
@@ -11,6 +12,7 @@ import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Lifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.github.aptemkov.locationreminder.LocationService
 import com.github.aptemkov.locationreminder.MainActivity
 import com.github.aptemkov.locationreminder.R
 import com.github.aptemkov.locationreminder.databinding.FragmentListBinding
@@ -37,6 +39,20 @@ class ListFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         setupMenu()
+
+        // TODO(TEST FEATURE)
+
+        ActivityCompat.requestPermissions(
+            requireActivity(),
+            arrayOf(
+                android.Manifest.permission.ACCESS_COARSE_LOCATION,
+                android.Manifest.permission.ACCESS_FINE_LOCATION,
+            ),
+            0
+        )
+
+        // TODO(TEST FEATURE)
+
 
 
         val adapter = TasksAdapter {
@@ -88,6 +104,27 @@ class ListFragment : Fragment() {
                         findNavController().popBackStack()
                         true
                     }
+
+                    // TODO(TEST FEATURE)
+
+                    R.id.test_start -> {
+                        Intent(requireContext(), LocationService::class.java).apply {
+                            action = LocationService.ACTION_START
+                            requireActivity().startService(this)
+                        }
+                        return true
+                    }
+
+                    R.id.test_stop -> {
+                        Intent(requireContext(), LocationService::class.java).apply {
+                            action = LocationService.ACTION_STOP
+                            requireActivity().startService(this)
+                        }
+                        return true
+                    }
+
+                    // TODO(TEST FEATURE)
+
                     else -> {
                         return true
                     }
