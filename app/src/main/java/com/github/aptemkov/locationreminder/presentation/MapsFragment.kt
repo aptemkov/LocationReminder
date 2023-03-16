@@ -1,8 +1,11 @@
 package com.github.aptemkov.locationreminder.presentation
 
+import android.annotation.SuppressLint
+import android.content.pm.PackageManager
 import android.os.Bundle
 import android.util.Log
 import android.view.*
+import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.view.MenuHost
 import androidx.core.view.MenuProvider
@@ -13,38 +16,42 @@ import androidx.navigation.fragment.findNavController
 import com.github.aptemkov.locationreminder.R
 import com.github.aptemkov.locationreminder.databinding.FragmentMapsBinding
 import com.github.aptemkov.locationreminder.domain.models.MapResponse
+import com.google.android.gms.location.LocationServices
+import com.google.android.gms.maps.CameraUpdateFactory
+import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.*
-import com.google.android.material.snackbar.Snackbar
+import com.google.android.gms.tasks.CancellationToken
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class MapsFragment : Fragment() {
 
     private val viewModel: AddingReminderViewModel by activityViewModels()
+    private val fusedLocationProviderClient by lazy {
+        LocationServices.getFusedLocationProviderClient(requireContext())
+    }
 
     private var _binding: FragmentMapsBinding? = null
     private val binding get() = _binding!!
 
-    var marker: Marker? = null
-    var circle: Circle? = null
+    private var marker: Marker? = null
+    private var circle: Circle? = null
     private var radius: Double = 50.0
 
+    @SuppressLint("MissingPermission")
     private val callback = OnMapReadyCallback { googleMap ->
 
+        googleMap.isMyLocationEnabled = true
+
+        getDeviceLocation(googleMap)
+
         val startPosition = LatLng(0.0, 0.0)
-        marker =
-            googleMap.addMarker(MarkerOptions()
-                .position(startPosition)
-                .title(getString(R.string.current_location))
-            )
+        marker = googleMap.addMarker(MarkerOptions().position(startPosition)
+            .title(getString(R.string.current_location)))
 
-        circle = googleMap.addCircle(CircleOptions()
-            .center(startPosition)
-            .radius(radius)
-        )
-
+        circle = googleMap.addCircle(CircleOptions().center(startPosition).radius(radius))
 
         googleMap.setOnCameraMoveListener {
             marker?.remove()
@@ -52,21 +59,15 @@ class MapsFragment : Fragment() {
 
             val cameraPosition = googleMap.cameraPosition.target
 
-            marker =
-                googleMap.addMarker(MarkerOptions()
-                    .position(cameraPosition)
-                    .title(getString(R.string.current_location))
-                )
+            marker = googleMap.addMarker(MarkerOptions().position(cameraPosition)
+                .title(getString(R.string.current_location)))
 
-            circle = googleMap.addCircle(CircleOptions()
-                .center(LatLng(cameraPosition.latitude, cameraPosition.longitude))
-                .radius(radius)
-                .strokeColor(ContextCompat.getColor(requireActivity().applicationContext,
-                    R.color.map_stroke_color))
+            circle = googleMap.addCircle(CircleOptions().center(LatLng(cameraPosition.latitude,
+                cameraPosition.longitude)).radius(radius).strokeColor(ContextCompat.getColor(
+                requireActivity().applicationContext,
+                R.color.map_stroke_color))
                 .fillColor(ContextCompat.getColor(requireActivity().applicationContext,
-                    R.color.map_main_color))
-                .strokeWidth(0.5f)
-            )
+                    R.color.map_main_color)).strokeWidth(0.5f))
 
             Log.d("MAP", "Map position: ${marker?.position}")
 
@@ -86,19 +87,13 @@ class MapsFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         setupMenu()
+        getLocationPermission()
 
         val mapFragment = childFragmentManager.findFragmentById(R.id.map) as SupportMapFragment?
         mapFragment?.getMapAsync(callback)
 
         binding.seekBar.value = radius.toFloat()
         binding.radiusTextView.text = radius.toInt().toString()
-        binding.radiusTextView.setOnClickListener {
-            Snackbar.make(
-                binding.root,
-                "${marker?.position} - radius ${circle?.radius}",
-                Snackbar.LENGTH_SHORT)
-                .show()
-        }
 
         binding.seekBar.addOnChangeListener { slider, value, fromUser ->
             binding.radiusTextView.text = value.toInt().toString()
@@ -106,6 +101,46 @@ class MapsFragment : Fragment() {
             circle?.radius = value.toDouble()
         }
 
+    }
+
+    @SuppressLint("MissingPermission")
+    private fun getLocationPermission() {
+        if (!locationPermissionsAreGranted()) {
+            ActivityCompat.requestPermissions(requireActivity(),
+                arrayOf(android.Manifest.permission.ACCESS_FINE_LOCATION),
+                100)
+            return
+        }
+    }
+
+    @SuppressLint("MissingPermission")
+    private fun getDeviceLocation(googleMap: GoogleMap) {
+
+        try {
+            if (locationPermissionsAreGranted()) {
+                fusedLocationProviderClient.lastLocation
+                    .addOnSuccessListener { location ->
+
+                        Log.w("MAPS", "Task successful $location")
+
+                        if (location != null) {
+                            googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(
+                                LatLng(location.latitude,
+                                    location.longitude), 15f))
+                        }
+
+                    }
+            }
+        } catch (e: java.lang.Exception) {
+            Log.e("Exception: ", e.message, e)
+        }
+    }
+
+    private fun locationPermissionsAreGranted(): Boolean {
+        return ActivityCompat.checkSelfPermission(requireContext(),
+            android.Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED &&
+                ActivityCompat.checkSelfPermission(requireContext(),
+                    android.Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
     }
 
 
@@ -119,17 +154,16 @@ class MapsFragment : Fragment() {
             override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
                 when (menuItem.itemId) {
                     R.id.action_done -> {
-                        val response =
-                            MapResponse(
-                                latitude = marker?.position?.latitude ?: 0.0,
-                                longitude = marker?.position?.longitude ?: 0.0,
-                                circle?.radius ?: 50.0
-                            )
+                        val response = MapResponse(latitude = marker?.position?.latitude ?: 0.0,
+                            longitude = marker?.position?.longitude ?: 0.0,
+                            circle?.radius ?: 50.0)
 
                         viewModel.saveLocation(response)
                         findNavController().popBackStack()
                     }
-                    android.R.id.home -> { findNavController().popBackStack() }
+                    android.R.id.home -> {
+                        findNavController().popBackStack()
+                    }
 
                 }
                 return true

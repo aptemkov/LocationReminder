@@ -66,6 +66,7 @@ dependencies {
 
     //Google maps
     implementation 'com.google.android.gms:play-services-maps:18.1.0'
+    implementation 'com.google.android.gms:play-services-location:21.0.1'
 
     //Hilt
     implementation("com.google.dagger:hilt-android:2.44")

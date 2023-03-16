@@ -41,7 +41,8 @@
         app:layout_constraintBottom_toBottomOf="@id/verGuidelineBottom30"
         app:layout_constraintEnd_toEndOf="@id/verGuidelineRight15"
         app:layout_constraintStart_toStartOf="@id/verGuidelineLeft15"
-        app:layout_constraintTop_toTopOf="@id/verGuidelineTop10" />
+        app:layout_constraintTop_toTopOf="@id/verGuidelineTop10"
+        android:contentDescription="@string/list_empty_layout_text" />
 
     <TextView
         android:layout_width="wrap_content"
