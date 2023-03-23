@@ -1,5 +1,6 @@
 package com.github.aptemkov.locationreminder.data.storage
 
+import android.util.Log
 import com.github.aptemkov.locationreminder.domain.models.Task
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
@@ -15,6 +16,7 @@ class FirebaseTaskStorage @Inject constructor(
 ) : TaskStorage {
 
     private var listener: ListenerRegistration? = null
+    private var listenerService: ListenerRegistration? = null
 
 
     override fun startTasksListener(result: (List<Task>) -> Unit) {
@@ -32,6 +34,28 @@ class FirebaseTaskStorage @Inject constructor(
                 val list = value.toObjects(Task::class.java)
 
                 result(list)
+                Log.i("STORAGE", "List: $list")
+            }
+        }
+    }
+
+
+    fun startTasksListenerFromService(result: (List<Task>) -> Unit) {
+        val firestore = FirebaseFirestore.getInstance()
+
+        val collection = firestore
+            .collection("users")
+            .document(auth.currentUser!!.uid)
+            .collection("tasks")
+            .orderBy("createdAt", Query.Direction.DESCENDING)
+
+
+        listenerService = collection.addSnapshotListener { value, error ->
+            if (value != null) {
+                val list = value.toObjects(Task::class.java)
+
+                result(list)
+                Log.i("STORAGE", "List: $list")
             }
         }
     }
