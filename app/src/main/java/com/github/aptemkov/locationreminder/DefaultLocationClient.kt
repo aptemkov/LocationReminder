@@ -8,6 +8,9 @@ import com.google.android.gms.location.FusedLocationProviderClient
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import android.os.Looper
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import com.github.aptemkov.locationreminder.domain.models.Task
 import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationResult
@@ -18,6 +21,13 @@ class DefaultLocationClient(
     private val context: Context,
     private val client: FusedLocationProviderClient
 ): LocationClient {
+
+    private val tasksMutable = MutableLiveData<List<Task>>()
+    private val tasksLiveData: LiveData<List<Task>> get() = tasksMutable
+
+    override fun updateTasksList(list: List<Task>) {
+        tasksMutable.value = list
+    }
 
     @SuppressLint("MissingPermission")
     override fun getLocationUpdates(interval: Long): Flow<Location> {
