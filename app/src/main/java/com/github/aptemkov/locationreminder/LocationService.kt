@@ -42,7 +42,7 @@ class LocationService : Service() {
     private val tasksMutable = MutableLiveData<List<Task>>()
     val tasksLiveData: LiveData<List<Task>> get() = tasksMutable
 
-    var tasksObserver: Observer<List<Task>>? = null
+    //var tasksObserver: Observer<List<Task>>? = null
 
     override fun onBind(p0: Intent?): IBinder? {
         return null
@@ -55,9 +55,9 @@ class LocationService : Service() {
             LocationServices.getFusedLocationProviderClient(applicationContext)
         )
 
-        tasksObserver = Observer<List<Task>> {
-            locationClient.updateTasksList(it)
-        }
+        //tasksObserver = Observer<List<Task>> {
+        //    locationClient.updateTasksList(it)
+        //}
 
         serviceScope.launch {
             firebaseTaskStorage.startTasksListenerFromService {
@@ -66,7 +66,7 @@ class LocationService : Service() {
             }
         }
 
-        tasksLiveData.observeForever(tasksObserver!!)
+        //tasksLiveData.observeForever(tasksObserver!!)
 
         Log.i("SERVICE", "Service started, ${tasksLiveData.value?.first()}")
     }
@@ -81,10 +81,10 @@ class LocationService : Service() {
 
     private fun start() {
         val notification = NotificationCompat.Builder(this, "location")
-            .setContentTitle("Tracking location...")
-            .setContentText("Location: null")
+            .setContentTitle("Tracking location")
+            .setContentText("Location tracking enabled.")
             .setSmallIcon(R.drawable.ic_launcher_background)
-            .setOngoing(false)
+            .setOngoing(true)
 
         val notificationManager =
             getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
@@ -105,12 +105,20 @@ class LocationService : Service() {
                             if(distance <= task.reminderRange) {
                                 //val lat = location.latitude.toString()
                                 //val long = location.longitude.toString()
+
+                                println("\n\n\n\n\ntrue $distance")
                                 val updatedNotification = notification.setContentText(
                                     "${tasksLiveData.value?.size} Location ${task.title} is $distance meters away."
                                 )
                                 notificationManager.notify(1, updatedNotification.build())
                             }
-                            else notificationManager.cancelAll()
+                            else {
+                                println("\n\n\n\n\nfalse $distance")
+                                val updatedNotification = notification.setContentText(
+                                    "$ Location tracking enabled."
+                                )
+                                notificationManager.notify(1, updatedNotification.build())
+                            }
                     }
                 }
 
@@ -122,7 +130,7 @@ class LocationService : Service() {
     }
 
     override fun onUnbind(intent: Intent?): Boolean {
-        tasksLiveData.removeObserver(tasksObserver!!)
+        //tasksLiveData.removeObserver(tasksObserver!!)
         return super.onUnbind(intent)
     }
 

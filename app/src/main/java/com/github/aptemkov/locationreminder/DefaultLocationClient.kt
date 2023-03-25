@@ -22,13 +22,6 @@ class DefaultLocationClient(
     private val client: FusedLocationProviderClient
 ): LocationClient {
 
-    private val tasksMutable = MutableLiveData<List<Task>>()
-    private val tasksLiveData: LiveData<List<Task>> get() = tasksMutable
-
-    override fun updateTasksList(list: List<Task>) {
-        tasksMutable.value = list
-    }
-
     @SuppressLint("MissingPermission")
     override fun getLocationUpdates(interval: Long): Flow<Location> {
         return callbackFlow {
