@@ -1,5 +1,6 @@
 package com.github.aptemkov.locationreminder
 
+import android.annotation.SuppressLint
 import android.app.NotificationManager
 import android.app.Service
 import android.content.Context
@@ -7,6 +8,7 @@ import android.content.Intent
 import android.location.Location
 import android.location.LocationManager
 import android.os.IBinder
+import android.os.Vibrator
 import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.lifecycle.Lifecycle
@@ -25,16 +27,18 @@ import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import java.security.Permission
 import javax.inject.Inject
 
 
 @AndroidEntryPoint
 class LocationService : Service() {
 
-    @Inject lateinit var subscribeToTaskListUseCase: SubscribeToTaskListUseCase
+    @Inject
+    lateinit var subscribeToTaskListUseCase: SubscribeToTaskListUseCase
 
-    @Inject lateinit var firebaseTaskStorage: FirebaseTaskStorage
-
+    @Inject
+    lateinit var firebaseTaskStorage: FirebaseTaskStorage
 
     private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     private lateinit var locationClient: LocationClient
@@ -42,7 +46,11 @@ class LocationService : Service() {
     private val tasksMutable = MutableLiveData<List<Task>>()
     val tasksLiveData: LiveData<List<Task>> get() = tasksMutable
 
-    //var tasksObserver: Observer<List<Task>>? = null
+    private val vibrator: Vibrator by lazy {
+        getSystemService(VIBRATOR_SERVICE) as Vibrator
+    }
+    private val vibrationPattern = longArrayOf(0, 500, 100, 500)
+
 
     override fun onBind(p0: Intent?): IBinder? {
         return null
@@ -55,18 +63,11 @@ class LocationService : Service() {
             LocationServices.getFusedLocationProviderClient(applicationContext)
         )
 
-        //tasksObserver = Observer<List<Task>> {
-        //    locationClient.updateTasksList(it)
-        //}
-
         serviceScope.launch {
             firebaseTaskStorage.startTasksListenerFromService {
-                Log.i("TEST", "service got list: $it")
                 tasksMutable.value = it
             }
         }
-
-        //tasksLiveData.observeForever(tasksObserver!!)
 
         Log.i("SERVICE", "Service started, ${tasksLiveData.value?.first()}")
     }
@@ -79,10 +80,11 @@ class LocationService : Service() {
         return super.onStartCommand(intent, flags, startId)
     }
 
+    @SuppressLint("MissingPermission")
     private fun start() {
         val notification = NotificationCompat.Builder(this, "location")
             .setContentTitle("Tracking location")
-            .setContentText("Location tracking enabled.")
+            .setContentText(getString(R.string.location_tracking_enabled))
             .setSmallIcon(R.drawable.ic_launcher_background)
             .setOngoing(true)
 
@@ -95,42 +97,37 @@ class LocationService : Service() {
             .onEach { location ->
 
                 tasksLiveData.value?.let { list ->
-                    for(task in list) {
+                    for (task in list) {
 
                         val taskLocation = Location("")
                         taskLocation.latitude = task.latitude
                         taskLocation.longitude = task.longitude
                         val distance = location.distanceTo(taskLocation)
 
-                            if(distance <= task.reminderRange) {
-                                //val lat = location.latitude.toString()
-                                //val long = location.longitude.toString()
+                        if (distance <= task.reminderRange) {
+                            Log.i("NOTIFICATION", "true $distance")
+                            val updatedNotification = notification.setContentText(
+                                "Location ${task.title} is $distance meters away."
+                            )
+                            notificationManager.notify(1, updatedNotification.build())
 
-                                println("\n\n\n\n\ntrue $distance")
-                                val updatedNotification = notification.setContentText(
-                                    "${tasksLiveData.value?.size} Location ${task.title} is $distance meters away."
-                                )
-                                notificationManager.notify(1, updatedNotification.build())
-                            }
-                            else {
-                                println("\n\n\n\n\nfalse $distance")
-                                val updatedNotification = notification.setContentText(
-                                    "$ Location tracking enabled."
-                                )
-                                notificationManager.notify(1, updatedNotification.build())
-                            }
+                            vibrator.vibrate(vibrationPattern, -1)
+
+                        } else {
+                            Log.w("NOTIFICATION", "false $distance")
+                            val updatedNotification = notification.setContentText(
+                                getString(R.string.location_tracking_enabled)
+                            )
+                            notificationManager.notify(1, updatedNotification.build())
+                        }
                     }
                 }
-
-
-            }
-            .launchIn(serviceScope)
+            }.launchIn(serviceScope)
 
         startForeground(1, notification.build())
     }
 
     override fun onUnbind(intent: Intent?): Boolean {
-        //tasksLiveData.removeObserver(tasksObserver!!)
         return super.onUnbind(intent)
     }
 
