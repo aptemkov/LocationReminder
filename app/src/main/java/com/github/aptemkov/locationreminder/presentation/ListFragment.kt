@@ -1,10 +1,20 @@
 package com.github.aptemkov.locationreminder.presentation
 
+import android.Manifest
+import android.annotation.SuppressLint
+import android.content.Context
+import android.content.Context.VIBRATOR_MANAGER_SERVICE
+import android.content.Context.VIBRATOR_SERVICE
 import android.content.Intent
-import android.os.Bundle
+import android.content.pm.PackageManager
+import android.os.*
+import android.util.Log
 import android.view.*
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
+import androidx.core.content.ContextCompat.getSystemService
+import androidx.core.content.getSystemService
 import androidx.core.view.MenuHost
 import androidx.core.view.MenuProvider
 import androidx.fragment.app.Fragment
@@ -16,6 +26,7 @@ import com.github.aptemkov.locationreminder.LocationService
 import com.github.aptemkov.locationreminder.MainActivity
 import com.github.aptemkov.locationreminder.R
 import com.github.aptemkov.locationreminder.databinding.FragmentListBinding
+import com.github.aptemkov.locationreminder.hasVibrationPermission
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -55,7 +66,6 @@ class ListFragment : Fragment() {
         // TODO(TEST FEATURE)
 
 
-
         val adapter = TasksAdapter {
             Toast.makeText(context, "$it", Toast.LENGTH_SHORT).show()
         }
@@ -71,14 +81,17 @@ class ListFragment : Fragment() {
 
         viewModel.tasksLiveData.observe(viewLifecycleOwner) {
             binding.listEmptyLayout.root.visibility =
-                if(it.isEmpty()) { View.VISIBLE }
-                else { View.INVISIBLE }
+                if (it.isEmpty()) {
+                    View.VISIBLE
+                } else {
+                    View.INVISIBLE
+                }
 
             adapter.submitList(it)
         }
 
         viewModel.isAuthorizated.observe(viewLifecycleOwner) {
-            if(it == false) {
+            if (it == false) {
                 restartApp()
             }
         }
@@ -109,10 +122,13 @@ class ListFragment : Fragment() {
                     // TODO(TEST FEATURE)
 
                     R.id.test_start -> {
-                        Intent(requireContext(), LocationService::class.java).apply {
-                            action = LocationService.ACTION_START
-                            requireActivity().startService(this)
-                        }
+//                        Intent(requireContext(), LocationService::class.java).apply {
+//                            action = LocationService.ACTION_START
+//                            requireActivity().startService(this)
+//                        }
+//
+                        vibrate()
+// TODO(return back)
                         return true
                     }
 
@@ -135,6 +151,28 @@ class ListFragment : Fragment() {
         }, viewLifecycleOwner, Lifecycle.State.RESUMED)
 
     }
+
+    @SuppressLint("MissingPermission")
+    private fun vibrate() {
+
+        val vibrator = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            val vibratorManager =
+                requireContext().getSystemService(VIBRATOR_MANAGER_SERVICE) as VibratorManager
+            vibratorManager.defaultVibrator
+        } else {
+            requireContext().getSystemService(VIBRATOR_SERVICE) as Vibrator
+        }
+
+        if (vibrator.hasVibrator()) { // Vibrator availability checking
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                vibrator.vibrate(VibrationEffect.createOneShot(500, VibrationEffect.DEFAULT_AMPLITUDE)) // New vibrate method for API Level 26 or higher
+            } else {
+                vibrator.vibrate(500) // Vibrate method for below API Level 26
+            }
+        }
+        else Log.e("VIBRATOR", "failed")
+    }
+
 
     override fun onDestroyView() {
         super.onDestroyView()
