@@ -1,18 +1,11 @@
-# Table of content
-
-
 # Location Reminder
 
 Location reminder is TODO app
 
-# 🤳🏾Demo
-
-<img src="https://github.com/mustfaibra/RoFFu/blob/master/app/demo/ruffo_demo.gif" width="200">
-
 
 # 🧐Want to try it?
 
-You can download the demo from [here](https://github.com/mustfaibra/RoFFu/blob/master/app/release/roffu.apk).
+You can download the demo from [here (soon)](https://github.com/aptemkov/LocationReminder/blob/master/screenshots/screen_1.png).
 
 
 # 📸Screenshots
@@ -23,9 +16,9 @@ You can download the demo from [here](https://github.com/mustfaibra/RoFFu/blob/m
 
 * [Hilt](https://developer.android.com/training/dependency-injection/hilt-jetpack) for dependency Injection
 * [Room](https://developer.android.com/training/data-storage/room) for storing complex data locally
-* [Firebase](https://firebase.google.com/)
-* [Kotlin Coroutines](https://developer.android.com/kotlin/coroutines)
-* [Jetpack Navigation](https://developer.android.com/guide/navigation)
+* [Firebase](https://firebase.google.com/) for data storage in the cloud
+* [Kotlin Coroutines](https://developer.android.com/kotlin/coroutines) for multithreading
+* [Jetpack Navigation](https://developer.android.com/guide/navigation) for navigation
 
 # 🔗Do you Want more?
 
