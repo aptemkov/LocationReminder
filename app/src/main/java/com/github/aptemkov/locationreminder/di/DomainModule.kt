@@ -6,10 +6,12 @@ import com.github.aptemkov.locationreminder.domain.usecases.*
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
+import dagger.hilt.android.components.ServiceComponent
 import dagger.hilt.android.components.ViewModelComponent
+import javax.inject.Singleton
 
 @Module
-@InstallIn(ViewModelComponent::class)
+@InstallIn(ServiceComponent::class, ViewModelComponent::class)
 object DomainModule {
 
     @Provides

@@ -1,10 +1,20 @@
 package com.github.aptemkov.locationreminder.presentation
 
+import android.Manifest
+import android.annotation.SuppressLint
+import android.content.Context
+import android.content.Context.VIBRATOR_MANAGER_SERVICE
+import android.content.Context.VIBRATOR_SERVICE
 import android.content.Intent
-import android.os.Bundle
+import android.content.pm.PackageManager
+import android.os.*
 import android.util.Log
 import android.view.*
 import android.widget.Toast
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
+import androidx.core.content.ContextCompat.getSystemService
+import androidx.core.content.getSystemService
 import androidx.core.view.MenuHost
 import androidx.core.view.MenuProvider
 import androidx.fragment.app.Fragment
@@ -12,15 +22,11 @@ import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Lifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.github.aptemkov.locationreminder.LocationService
 import com.github.aptemkov.locationreminder.MainActivity
 import com.github.aptemkov.locationreminder.R
-import com.github.aptemkov.locationreminder.data.repository.TaskRepositoryImpl
-import com.github.aptemkov.locationreminder.data.storage.FirebaseTaskStorage
 import com.github.aptemkov.locationreminder.databinding.FragmentListBinding
-import com.github.aptemkov.locationreminder.domain.usecases.SubscribeToTaskListUseCase
-import com.google.firebase.auth.ktx.auth
-import com.google.firebase.firestore.ListenerRegistration
-import com.google.firebase.ktx.Firebase
+import com.github.aptemkov.locationreminder.hasVibrationPermission
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -31,8 +37,6 @@ class ListFragment : Fragment() {
 
     private var _binding: FragmentListBinding? = null
     private val binding get() = _binding!!
-
-    private val auth by lazy { Firebase.auth }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -46,6 +50,20 @@ class ListFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         setupMenu()
+
+        // TODO(TEST FEATURE)
+
+        ActivityCompat.requestPermissions(
+            requireActivity(),
+            arrayOf(
+                android.Manifest.permission.ACCESS_COARSE_LOCATION,
+                android.Manifest.permission.ACCESS_FINE_LOCATION,
+                android.Manifest.permission.VIBRATE
+            ),
+            0
+        )
+
+        // TODO(TEST FEATURE)
 
 
         val adapter = TasksAdapter {
@@ -62,11 +80,18 @@ class ListFragment : Fragment() {
         }
 
         viewModel.tasksLiveData.observe(viewLifecycleOwner) {
+            binding.listEmptyLayout.root.visibility =
+                if (it.isEmpty()) {
+                    View.VISIBLE
+                } else {
+                    View.INVISIBLE
+                }
+
             adapter.submitList(it)
         }
 
         viewModel.isAuthorizated.observe(viewLifecycleOwner) {
-            if(it == false) {
+            if (it == false) {
                 restartApp()
             }
         }
@@ -93,6 +118,30 @@ class ListFragment : Fragment() {
                         findNavController().popBackStack()
                         true
                     }
+
+                    // TODO(TEST FEATURE)
+
+                    R.id.test_start -> {
+//                        Intent(requireContext(), LocationService::class.java).apply {
+//                            action = LocationService.ACTION_START
+//                            requireActivity().startService(this)
+//                        }
+//
+                        vibrate()
+// TODO(return back)
+                        return true
+                    }
+
+                    R.id.test_stop -> {
+                        Intent(requireContext(), LocationService::class.java).apply {
+                            action = LocationService.ACTION_STOP
+                            requireActivity().startService(this)
+                        }
+                        return true
+                    }
+
+                    // TODO(TEST FEATURE)
+
                     else -> {
                         return true
                     }
@@ -102,6 +151,28 @@ class ListFragment : Fragment() {
         }, viewLifecycleOwner, Lifecycle.State.RESUMED)
 
     }
+
+    @SuppressLint("MissingPermission")
+    private fun vibrate() {
+
+        val vibrator = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            val vibratorManager =
+                requireContext().getSystemService(VIBRATOR_MANAGER_SERVICE) as VibratorManager
+            vibratorManager.defaultVibrator
+        } else {
+            requireContext().getSystemService(VIBRATOR_SERVICE) as Vibrator
+        }
+
+        if (vibrator.hasVibrator()) { // Vibrator availability checking
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                vibrator.vibrate(VibrationEffect.createOneShot(500, VibrationEffect.DEFAULT_AMPLITUDE)) // New vibrate method for API Level 26 or higher
+            } else {
+                vibrator.vibrate(500) // Vibrate method for below API Level 26
+            }
+        }
+        else Log.e("VIBRATOR", "failed")
+    }
+
 
     override fun onDestroyView() {
         super.onDestroyView()
