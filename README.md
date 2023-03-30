@@ -1,6 +1,8 @@
 # Location Reminder
 
-Location reminder is TODO app
+Location reminder is TODO app with geozones integration. 
+
+The user can select a geofence to perform a task in it and can be notified when they enter it.
 
 
 # 🧐Want to try it?
@@ -19,6 +21,9 @@ You can download the demo from [here (soon)](https://github.com/aptemkov/Locatio
 * [Firebase](https://firebase.google.com/) for data storage in the cloud
 * [Kotlin Coroutines](https://developer.android.com/kotlin/coroutines) for multithreading
 * [Jetpack Navigation](https://developer.android.com/guide/navigation) for navigation
+* Clean Architecture
+* View Model
+* Live Data
 
 # 🔗Do you Want more?
 
