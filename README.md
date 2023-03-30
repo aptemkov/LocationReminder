@@ -12,7 +12,9 @@ You can download the demo from [here (soon)](https://github.com/aptemkov/Locatio
 
 # 📸Screenshots
 
-<img src="https://github.com/aptemkov/LocationReminder/blob/master/screenshots/screen_1.png" width="200">
+<img src="https://github.com/aptemkov/LocationReminder/blob/master/screenshots/screen_1.png" width="200"> | 
+<img src="https://github.com/aptemkov/LocationReminder/blob/master/screenshots/screen_2.png" width="200">
+
 
 # 🧑🏾‍💻Tech used
 
