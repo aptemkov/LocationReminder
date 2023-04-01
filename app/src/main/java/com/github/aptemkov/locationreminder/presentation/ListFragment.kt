@@ -56,9 +56,8 @@ class ListFragment : Fragment() {
         ActivityCompat.requestPermissions(
             requireActivity(),
             arrayOf(
-                android.Manifest.permission.ACCESS_COARSE_LOCATION,
-                android.Manifest.permission.ACCESS_FINE_LOCATION,
-                android.Manifest.permission.VIBRATE
+                Manifest.permission.ACCESS_COARSE_LOCATION,
+                Manifest.permission.ACCESS_FINE_LOCATION,
             ),
             0
         )
@@ -122,12 +121,12 @@ class ListFragment : Fragment() {
                     // TODO(TEST FEATURE)
 
                     R.id.test_start -> {
-//                        Intent(requireContext(), LocationService::class.java).apply {
-//                            action = LocationService.ACTION_START
-//                            requireActivity().startService(this)
-//                        }
-//
-                        vibrate()
+                        Intent(requireContext(), LocationService::class.java).apply {
+                            action = LocationService.ACTION_START
+                            requireActivity().startService(this)
+                        }
+
+                        //vibrate()
 // TODO(return back)
                         return true
                     }
@@ -155,6 +154,14 @@ class ListFragment : Fragment() {
     @SuppressLint("MissingPermission")
     private fun vibrate() {
 
+        ActivityCompat.requestPermissions(
+            requireActivity(),
+            arrayOf(
+                Manifest.permission.VIBRATE
+            ),
+            0
+        )
+
         val vibrator = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             val vibratorManager =
                 requireContext().getSystemService(VIBRATOR_MANAGER_SERVICE) as VibratorManager
@@ -163,14 +170,17 @@ class ListFragment : Fragment() {
             requireContext().getSystemService(VIBRATOR_SERVICE) as Vibrator
         }
 
+        Log.i("VIBRATOR", "has vibrator = ${vibrator.hasVibrator()}")
         if (vibrator.hasVibrator()) { // Vibrator availability checking
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 vibrator.vibrate(VibrationEffect.createOneShot(500, VibrationEffect.DEFAULT_AMPLITUDE)) // New vibrate method for API Level 26 or higher
+                Log.i("VIBRATOR", "vibrated on sdk >= 26")
             } else {
+                Log.i("VIBRATOR", "vibrated on sdk < 26")
                 vibrator.vibrate(500) // Vibrate method for below API Level 26
             }
         }
-        else Log.e("VIBRATOR", "failed")
+        else Log.i("VIBRATOR", "failed")
     }
 
 

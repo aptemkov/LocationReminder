@@ -70,10 +70,12 @@ class FirebaseTaskStorage @Inject constructor(
             .add(task)
             .addOnSuccessListener {
                 exception = null
+                Log.i("FIREBASE", "successfully added")
             }
             .addOnFailureListener {
                 exception = it
                 result = false
+                Log.e("FIREBASE", "adding failure", it)
             }
         return Pair(result, exception)
     }
