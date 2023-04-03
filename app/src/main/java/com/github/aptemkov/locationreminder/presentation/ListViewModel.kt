@@ -7,6 +7,7 @@ import androidx.lifecycle.ViewModel
 import com.github.aptemkov.locationreminder.domain.models.Task
 import com.github.aptemkov.locationreminder.domain.usecases.LogOutUseCase
 import com.github.aptemkov.locationreminder.domain.usecases.SubscribeToTaskListUseCase
+import com.github.aptemkov.locationreminder.domain.usecases.UpdateTaskUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 
@@ -14,7 +15,8 @@ import javax.inject.Inject
 @HiltViewModel
 class ListViewModel @Inject constructor(
     private val getTaskListUseCase: SubscribeToTaskListUseCase,
-    private val logOutUseCase: LogOutUseCase
+    private val logOutUseCase: LogOutUseCase,
+    private val updateTaskUseCase: UpdateTaskUseCase
 ) : ViewModel() {
 
     private val tasksMutable = MutableLiveData<List<Task>>()
@@ -33,6 +35,10 @@ class ListViewModel @Inject constructor(
     fun signOut() {
         logOutUseCase.execute()
         isAuthorizatedMutable.value = false
+    }
+
+    fun update(task: Task) {
+        updateTaskUseCase.execute(task)
     }
 
 }

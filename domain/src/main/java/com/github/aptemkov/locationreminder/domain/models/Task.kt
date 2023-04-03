@@ -11,15 +11,5 @@ data class Task(
     val active: Boolean = true,
     val reminderRange: Double = 0.0,
     val createdAt: Long = Calendar.getInstance().timeInMillis,
-
-    ) {
-    /*constructor() : this(
-        title = "Title",
-        description = "Description",
-        latitude= 0.0,
-        longitude = 0.0,
-        isActive = true,
-        reminderRange = 0,
-        createdAt = 0L
-    )*/
-}
+    val taskId: Int = (Math.random() * 1_000_000_000).toInt()
+)

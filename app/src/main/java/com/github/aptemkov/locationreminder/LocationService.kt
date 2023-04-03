@@ -11,6 +11,7 @@ import android.media.MediaPlayer
 import android.os.*
 import android.util.Log
 import androidx.core.app.NotificationCompat
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LiveData
@@ -92,14 +93,13 @@ class LocationService : Service() {
 
                 tasksLiveData.value?.let { list ->
                     for (task in list) {
-
-                        val taskLocation = Location("")
-                        taskLocation.latitude = task.latitude
-                        taskLocation.longitude = task.longitude
+                        val taskLocation = Location("").apply {
+                            latitude = task.latitude
+                            longitude = task.longitude
+                        }
                         val distance = location.distanceTo(taskLocation)
 
-                        if (distance <= task.reminderRange) {
-                            Log.i("NOTIFICATION", "true $distance")
+                        if (task.active && distance <= task.reminderRange) {
                             val updatedNotification = notification.setContentText(
                                 "Location ${task.title} is $distance meters away."
                             )
@@ -107,9 +107,8 @@ class LocationService : Service() {
 
                             vibrate()
                             makeSound()
-
+                            break
                         } else {
-                            Log.w("NOTIFICATION", "false $distance")
                             val updatedNotification = notification.setContentText(
                                 getString(R.string.location_tracking_enabled)
                             )
@@ -118,6 +117,7 @@ class LocationService : Service() {
                     }
                 }
             }.launchIn(serviceScope)
+
 
         startForeground(1, notification.build())
     }
@@ -151,11 +151,24 @@ class LocationService : Service() {
         }
         else Log.i("VIBRATOR", "failed")
 */
+
+        val vibrator = ContextCompat.getSystemService(this, Vibrator::class.java) as Vibrator
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val effect = VibrationEffect.createOneShot(200, VibrationEffect.DEFAULT_AMPLITUDE)
+            vibrator.vibrate(effect)
+            Log.d("VIBRATOR", "Vibration started")
+        } else {
+            if (vibrator.hasVibrator()) {
+                vibrator.vibrate(200)
+                Log.d("VIBRATOR", "Vibration started")
+            } else {
+                Log.d("VIBRATOR", "Vibration not supported")
+            }
+        }
+
     }
 
-    override fun onUnbind(intent: Intent?): Boolean {
-        return super.onUnbind(intent)
-    }
 
     private fun stop() {
         stopForeground(true)

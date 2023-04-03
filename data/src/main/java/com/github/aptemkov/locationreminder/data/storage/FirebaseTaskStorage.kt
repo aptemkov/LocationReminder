@@ -8,6 +8,10 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ListenerRegistration
 import com.google.firebase.firestore.Query
 import com.google.firebase.ktx.Firebase
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 
 class FirebaseTaskStorage @Inject constructor(
@@ -18,6 +22,11 @@ class FirebaseTaskStorage @Inject constructor(
     private var listener: ListenerRegistration? = null
     private var listenerService: ListenerRegistration? = null
 
+    val taskCollectionRef =
+        FirebaseFirestore.getInstance()
+            .collection("users")
+            .document(auth.currentUser!!.uid)
+            .collection("tasks")
 
     override fun startTasksListener(result: (List<Task>) -> Unit) {
         val firestore = FirebaseFirestore.getInstance()
@@ -85,7 +94,33 @@ class FirebaseTaskStorage @Inject constructor(
     }
 
     override fun edit(task: Task) {
-        TODO("Not yet implemented")
+
+        CoroutineScope(Dispatchers.IO).launch {
+
+            val taskQuery = taskCollectionRef
+                .whereEqualTo("taskId", task.taskId)
+                .whereEqualTo("createdAt", task.createdAt)
+                .get()
+                .await()
+
+            if (taskQuery.documents.isNotEmpty()) {
+                for (document in taskQuery) {
+                    try {
+                        taskCollectionRef.document(document.id)
+                            .update("active", !task.active)
+                            .addOnSuccessListener {
+                                Log.d("UPDATE", "DocumentSnapshot successfully updated!")
+                            }
+                            .addOnFailureListener {
+                                Log.w("UPDATE", "Error updating document", it)
+                            }
+                    } catch (e: Exception) {
+                        Log.d("UPDATE", "${e.message}")
+                    }
+                }
+            }
+        }
+
     }
 
     override fun get(position: Int): Task {
