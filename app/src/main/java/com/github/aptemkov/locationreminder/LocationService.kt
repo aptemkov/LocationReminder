@@ -7,10 +7,11 @@ import android.content.Context
 import android.content.Intent
 import android.location.Location
 import android.location.LocationManager
-import android.os.IBinder
-import android.os.Vibrator
+import android.media.MediaPlayer
+import android.os.*
 import android.util.Log
 import androidx.core.app.NotificationCompat
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LiveData
@@ -45,12 +46,6 @@ class LocationService : Service() {
 
     private val tasksMutable = MutableLiveData<List<Task>>()
     val tasksLiveData: LiveData<List<Task>> get() = tasksMutable
-
-    private val vibrator: Vibrator by lazy {
-        getSystemService(VIBRATOR_SERVICE) as Vibrator
-    }
-    private val vibrationPattern = longArrayOf(0, 500, 100, 500)
-
 
     override fun onBind(p0: Intent?): IBinder? {
         return null
@@ -98,23 +93,22 @@ class LocationService : Service() {
 
                 tasksLiveData.value?.let { list ->
                     for (task in list) {
-
-                        val taskLocation = Location("")
-                        taskLocation.latitude = task.latitude
-                        taskLocation.longitude = task.longitude
+                        val taskLocation = Location("").apply {
+                            latitude = task.latitude
+                            longitude = task.longitude
+                        }
                         val distance = location.distanceTo(taskLocation)
 
-                        if (distance <= task.reminderRange) {
-                            Log.i("NOTIFICATION", "true $distance")
+                        if (task.active && distance <= task.reminderRange) {
                             val updatedNotification = notification.setContentText(
                                 "Location ${task.title} is $distance meters away."
                             )
                             notificationManager.notify(1, updatedNotification.build())
 
-                            vibrator.vibrate(vibrationPattern, -1)
-
+                            vibrate()
+                            makeSound()
+                            break
                         } else {
-                            Log.w("NOTIFICATION", "false $distance")
                             val updatedNotification = notification.setContentText(
                                 getString(R.string.location_tracking_enabled)
                             )
@@ -124,12 +118,57 @@ class LocationService : Service() {
                 }
             }.launchIn(serviceScope)
 
+
         startForeground(1, notification.build())
     }
 
-    override fun onUnbind(intent: Intent?): Boolean {
-        return super.onUnbind(intent)
+
+    private fun makeSound() {
+        val mediaPlayer = MediaPlayer.create(this, R.raw.notification_sound)
+        mediaPlayer.start()
+        Log.i("Sound", "successful")
     }
+
+    @SuppressLint("MissingPermission")
+    private fun vibrate() {
+/*
+        val vibrator = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            val vibratorManager = getSystemService(VIBRATOR_MANAGER_SERVICE) as VibratorManager
+            vibratorManager.defaultVibrator
+        } else {
+            getSystemService(VIBRATOR_SERVICE) as Vibrator
+        }
+
+        Log.i("VIBRATOR", "has vibrator = ${vibrator.hasVibrator()}")
+        if (vibrator.hasVibrator()) { // Vibrator availability checking
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                vibrator.vibrate(VibrationEffect.createOneShot(500, VibrationEffect.DEFAULT_AMPLITUDE)) // New vibrate method for API Level 26 or higher
+                Log.i("VIBRATOR", "vibrated on sdk >= 26")
+            } else {
+                Log.i("VIBRATOR", "vibrated on sdk < 26")
+                vibrator.vibrate(500) // Vibrate method for below API Level 26
+            }
+        }
+        else Log.i("VIBRATOR", "failed")
+*/
+
+        val vibrator = ContextCompat.getSystemService(this, Vibrator::class.java) as Vibrator
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val effect = VibrationEffect.createOneShot(200, VibrationEffect.DEFAULT_AMPLITUDE)
+            vibrator.vibrate(effect)
+            Log.d("VIBRATOR", "Vibration started")
+        } else {
+            if (vibrator.hasVibrator()) {
+                vibrator.vibrate(200)
+                Log.d("VIBRATOR", "Vibration started")
+            } else {
+                Log.d("VIBRATOR", "Vibration not supported")
+            }
+        }
+
+    }
+
 
     private fun stop() {
         stopForeground(true)

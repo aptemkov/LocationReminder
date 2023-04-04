@@ -2,22 +2,14 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="com.github.aptemkov.locationreminder.MainActivity">
+
+    <item
+        android:id="@+id/test_stop"
+        android:title="@string/stop"
+        app:showAsAction="never" />
+
     <item
         android:id="@+id/action_logout"
         android:title="@string/action_logout"
         app:showAsAction="never" />
-
-    <!-- TODO(TEST FEATURE) -->
-
-    <item
-        android:id="@+id/test_start"
-        android:title="Start"
-        app:showAsAction="never" />
-
-    <item
-        android:id="@+id/test_stop"
-        android:title="Stop"
-        app:showAsAction="never" />
-
-    <!-- TODO(TEST FEATURE) -->
 </menu>

@@ -48,7 +48,7 @@
         app:layout_constraintGuide_percent="0.7" />
 
     <com.google.android.material.materialswitch.MaterialSwitch
-        android:id="@+id/activity_switch"
+        android:id="@+id/is_active_switch"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:layout_constraintEnd_toEndOf="parent"
