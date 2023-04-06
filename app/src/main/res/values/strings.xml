@@ -73,4 +73,9 @@
     <string name="list_empty_layout_text">Saved reminders will show up here, so you can easily view them here later</string>
     <string name="location_tracking_enabled">Location tracking enabled.</string>
     <string name="stop">Stop</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="details_title">Details</string>
+    <string name="authorization_title">Authorization</string>
+    <string name="reminders_title">Reminders</string>
 </resources>

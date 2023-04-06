@@ -9,12 +9,15 @@
     <fragment
         android:id="@+id/ListFragment"
         android:name="com.github.aptemkov.locationreminder.presentation.ListFragment"
-        android:label="Reminders"
+        android:label="@string/reminders_title"
         tools:layout="@layout/fragment_list">
 
         <action
             android:id="@+id/action_ListFragment_to_AddingFragment"
             app:destination="@id/AddingFragment" />
+        <action
+            android:id="@+id/action_ListFragment_to_detailsFragment"
+            app:destination="@id/detailsFragment" />
     </fragment>
     <fragment
         android:id="@+id/AddingFragment"
@@ -28,7 +31,7 @@
     <fragment
         android:id="@+id/loginFragment"
         android:name="com.github.aptemkov.locationreminder.presentation.LoginFragment"
-        android:label="Authorization"
+        android:label="@string/authorization_title"
         tools:layout="@layout/fragment_login">
         <action
             android:id="@+id/action_loginFragment_to_ListFragment"
@@ -42,4 +45,13 @@
         android:name="com.github.aptemkov.locationreminder.presentation.MapsFragment"
         android:label="Select location"
         tools:layout="@layout/fragment_maps" />
+    <fragment
+        android:id="@+id/detailsFragment"
+        android:name="com.github.aptemkov.locationreminder.presentation.DetailsFragment"
+        android:label="@string/details_title"
+        tools:layout="@layout/fragment_details" >
+        <argument
+            android:name="task"
+            app:argType="com.github.aptemkov.locationreminder.domain.models.Task" />
+    </fragment>
 </navigation>

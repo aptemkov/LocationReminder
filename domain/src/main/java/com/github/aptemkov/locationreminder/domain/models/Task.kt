@@ -1,5 +1,6 @@
 package com.github.aptemkov.locationreminder.domain.models
 
+import java.io.Serializable
 import java.util.*
 
 data class Task(
@@ -12,4 +13,4 @@ data class Task(
     val reminderRange: Double = 0.0,
     val createdAt: Long = Calendar.getInstance().timeInMillis,
     val taskId: Int = (Math.random() * 1_000_000_000).toInt()
-)
+): Serializable
