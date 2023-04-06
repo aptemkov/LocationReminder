@@ -2,6 +2,7 @@ package com.github.aptemkov.locationreminder
 
 import android.annotation.SuppressLint
 import android.app.NotificationManager
+import android.app.PendingIntent
 import android.app.Service
 import android.content.Context
 import android.content.Intent
@@ -77,10 +78,19 @@ class LocationService : Service() {
 
     @SuppressLint("MissingPermission")
     private fun start() {
+
+        val intent = Intent(this, MainActivity::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+        }
+        val pendingIntent: PendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_IMMUTABLE)
+
+
         val notification = NotificationCompat.Builder(this, "location")
             .setContentTitle("Tracking location")
             .setContentText(getString(R.string.location_tracking_enabled))
             .setSmallIcon(R.drawable.ic_launcher_background)
+            .setContentIntent(pendingIntent)
+            .addAction(R.drawable.ic_launcher_background, "Stop tracking", pendingIntent)
             .setOngoing(true)
 
         val notificationManager =
@@ -100,8 +110,10 @@ class LocationService : Service() {
                         val distance = location.distanceTo(taskLocation)
 
                         if (task.active && distance <= task.reminderRange) {
-                            val updatedNotification = notification.setContentText(
-                                "Location ${task.title} is $distance meters away."
+                            val updatedNotification =
+                                notification
+
+                                    .setContentText("Location ${task.title} is $distance meters away."
                             )
                             notificationManager.notify(1, updatedNotification.build())
 
