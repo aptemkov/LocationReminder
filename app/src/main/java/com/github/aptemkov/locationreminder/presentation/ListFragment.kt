@@ -19,6 +19,7 @@ import com.github.aptemkov.locationreminder.R
 import com.github.aptemkov.locationreminder.databinding.FragmentListBinding
 import com.github.aptemkov.locationreminder.domain.models.Task
 import dagger.hilt.android.AndroidEntryPoint
+import hilt_aggregated_deps._com_github_aptemkov_locationreminder_presentation_ListFragment_GeneratedInjector
 
 @AndroidEntryPoint
 class ListFragment : Fragment() {
@@ -91,13 +92,12 @@ class ListFragment : Fragment() {
     }
 
     private fun openDetailsFragment(task: Task) {
-//        findNavController().navigate(R.id.action_ListFragment_to_detailsFragment(Task()))
+        val action = ListFragmentDirections.actionListFragmentToDetailsFragment(task)
+        findNavController().navigate(action)
     }
 
     private fun editTask(task: Task) {
-
         viewModel.update(task)
-
     }
 
     private fun restartApp() {

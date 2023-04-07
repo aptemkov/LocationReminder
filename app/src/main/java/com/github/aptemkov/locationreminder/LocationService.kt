@@ -13,11 +13,14 @@ import android.os.*
 import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
+import androidx.core.os.bundleOf
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
+import androidx.navigation.NavDeepLink
+import androidx.navigation.NavDeepLinkBuilder
 import com.github.aptemkov.locationreminder.data.storage.FirebaseTaskStorage
 import com.github.aptemkov.locationreminder.domain.models.Task
 import com.github.aptemkov.locationreminder.domain.usecases.SubscribeToTaskListUseCase
@@ -84,13 +87,12 @@ class LocationService : Service() {
         }
         val pendingIntent: PendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_IMMUTABLE)
 
-
         val notification = NotificationCompat.Builder(this, "location")
             .setContentTitle("Tracking location")
             .setContentText(getString(R.string.location_tracking_enabled))
             .setSmallIcon(R.drawable.ic_launcher_background)
             .setContentIntent(pendingIntent)
-            .addAction(R.drawable.ic_launcher_background, "Stop tracking", pendingIntent)
+            .addAction(R.drawable.ic_launcher_background, "Open reminders", pendingIntent)
             .setOngoing(true)
 
         val notificationManager =
@@ -110,9 +112,18 @@ class LocationService : Service() {
                         val distance = location.distanceTo(taskLocation)
 
                         if (task.active && distance <= task.reminderRange) {
+                            /*
+                         TODO(Add the ability to launch details fragment from notification)
+                            val pendingIntent = NavDeepLinkBuilder(applicationContext)
+                                .setComponentName(MainActivity::class.java)
+                                .setGraph(R.navigation.nav_graph)
+                                .setDestination(R.id.deepLinkDetailsFragment)
+                                .setArguments(bundleOf(Pair("task", task)))
+                                .createPendingIntent()
+                                */
                             val updatedNotification =
                                 notification
-
+                                    .setContentIntent(pendingIntent)
                                     .setContentText("Location ${task.title} is $distance meters away."
                             )
                             notificationManager.notify(1, updatedNotification.build())

@@ -49,9 +49,12 @@
         android:id="@+id/detailsFragment"
         android:name="com.github.aptemkov.locationreminder.presentation.DetailsFragment"
         android:label="@string/details_title"
-        tools:layout="@layout/fragment_details" >
+        tools:layout="@layout/fragment_details">
         <argument
             android:name="task"
             app:argType="com.github.aptemkov.locationreminder.domain.models.Task" />
+        <deepLink
+            android:id="@+id/deepLinkDetailsFragment"
+            app:uri="locationreminder.aptemkov.github.com/details/{task}" />
     </fragment>
 </navigation>
