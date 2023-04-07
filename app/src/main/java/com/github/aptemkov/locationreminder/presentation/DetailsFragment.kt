@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.navArgs
 import com.github.aptemkov.locationreminder.databinding.FragmentDetailsBinding
+import java.text.SimpleDateFormat
 
 class DetailsFragment : Fragment() {
 
@@ -25,7 +26,16 @@ class DetailsFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         val task = args.task
-        binding.dateTv.text = task.toString()
+
+        val simpleDateFormat = SimpleDateFormat("EEEE, dd MMMM yyyy HH:mm ")
+
+        binding.apply {
+            titleTv.text = task.title
+            rangeTv.text = task.reminderRange.toInt().toString()
+            locationTv.text = "Latitude: ${task.latitude}\nLongitude: ${task.longitude}"
+            dateTv.text = simpleDateFormat.format(task.createdAt)
+            descriptionTv.text = task.description
+        }
     }
 
     override fun onDestroyView() {
