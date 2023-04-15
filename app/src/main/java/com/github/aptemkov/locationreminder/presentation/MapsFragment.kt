@@ -51,23 +51,18 @@ class MapsFragment : Fragment() {
         marker = googleMap.addMarker(MarkerOptions().position(startPosition)
             .title(getString(R.string.current_location)))
 
-        circle = googleMap.addCircle(CircleOptions().center(startPosition).radius(radius))
+        circle = googleMap.addCircle(CircleOptions().center(startPosition)
+            .radius(radius)
+            .strokeColor(ContextCompat.getColor(requireActivity().applicationContext, R.color.map_stroke_color))
+            .fillColor(ContextCompat.getColor(requireActivity().applicationContext, R.color.map_main_color))
+            .strokeWidth(0.5f))
 
         googleMap.setOnCameraMoveListener {
-            marker?.remove()
-            circle?.remove()
 
             val cameraPosition = googleMap.cameraPosition.target
 
-            marker = googleMap.addMarker(MarkerOptions().position(cameraPosition)
-                .title(getString(R.string.current_location)))
-
-            circle = googleMap.addCircle(CircleOptions().center(LatLng(cameraPosition.latitude,
-                cameraPosition.longitude)).radius(radius).strokeColor(ContextCompat.getColor(
-                requireActivity().applicationContext,
-                R.color.map_stroke_color))
-                .fillColor(ContextCompat.getColor(requireActivity().applicationContext,
-                    R.color.map_main_color)).strokeWidth(0.5f))
+            marker?.position = cameraPosition
+            circle?.center = cameraPosition
 
             Log.d("MAP", "Map position: ${marker?.position}")
 
@@ -131,7 +126,7 @@ class MapsFragment : Fragment() {
 
                     }
             }
-        } catch (e: java.lang.Exception) {
+        } catch (e: Exception) {
             Log.e("Exception: ", e.message, e)
         }
     }
