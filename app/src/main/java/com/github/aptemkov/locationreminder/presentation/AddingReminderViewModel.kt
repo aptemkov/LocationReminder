@@ -28,5 +28,8 @@ class AddingReminderViewModel @Inject constructor(
         val result = saveTaskUseCase.execute(task)
         saveResultMutable.value = result
     }
+    fun closeViewModel() {
+        onCleared()
+    }
 
 }

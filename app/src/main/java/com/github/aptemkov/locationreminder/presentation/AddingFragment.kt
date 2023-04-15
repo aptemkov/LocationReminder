@@ -29,16 +29,16 @@ class AddingFragment : Fragment() {
     ): View {
         _binding = FragmentAddingBinding.inflate(inflater, container, false)
         return binding.root
-
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-
         viewmodel.mapResponseLiveData.observe(viewLifecycleOwner) {
-            if (it != null)
+            if (it != null) {
                 binding.locationLabel.text = getString(R.string.location_selected)
+                binding.locationImage.setImageResource(R.drawable.ic_location)
+            }
         }
 
         binding.buttonSaveUser.setOnClickListener {
@@ -60,9 +60,16 @@ class AddingFragment : Fragment() {
         }
 
         binding.locationLabel.setOnClickListener {
-            findNavController().navigate(R.id.action_AddingFragment_to_mapsFragment)
+            openMapFragment()
+        }
+        binding.locationImage.setOnClickListener {
+            openMapFragment()
         }
 
+    }
+
+    private fun openMapFragment() {
+        findNavController().navigate(R.id.action_AddingFragment_to_mapsFragment)
     }
 
     private fun saveTask(
@@ -96,6 +103,7 @@ class AddingFragment : Fragment() {
                 Toast.makeText(context, "Error: " + it.second?.message, Toast.LENGTH_SHORT)
                     .show()
             }
+            viewmodel.closeViewModel()
         }
     }
 

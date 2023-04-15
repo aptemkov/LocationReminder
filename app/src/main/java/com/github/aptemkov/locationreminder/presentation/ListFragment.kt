@@ -2,6 +2,7 @@ package com.github.aptemkov.locationreminder.presentation
 
 import android.Manifest
 import android.content.Intent
+import android.content.IntentSender
 import android.os.Bundle
 import android.view.*
 import android.widget.Toast
@@ -18,7 +19,10 @@ import com.github.aptemkov.locationreminder.MainActivity
 import com.github.aptemkov.locationreminder.R
 import com.github.aptemkov.locationreminder.databinding.FragmentListBinding
 import com.github.aptemkov.locationreminder.domain.models.Task
+import com.google.android.gms.common.api.ResolvableApiException
+import com.google.android.gms.location.*
 import dagger.hilt.android.AndroidEntryPoint
+import hilt_aggregated_deps._com_github_aptemkov_locationreminder_presentation_ListFragment_GeneratedInjector
 
 @AndroidEntryPoint
 class ListFragment : Fragment() {
@@ -43,6 +47,7 @@ class ListFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         startLocationTracking()
         setupMenu()
+        requestDeviceLocationSettings()
 
         ActivityCompat.requestPermissions(requireActivity(),
             arrayOf(
@@ -82,6 +87,11 @@ class ListFragment : Fragment() {
                 restartApp()
             }
         }
+        ///////
+
+
+
+        ///////
     }
 
     private fun initViews() {
@@ -91,13 +101,12 @@ class ListFragment : Fragment() {
     }
 
     private fun openDetailsFragment(task: Task) {
-//        findNavController().navigate(R.id.action_ListFragment_to_detailsFragment(Task()))
+        val action = ListFragmentDirections.actionListFragmentToDetailsFragment(task)
+        findNavController().navigate(action)
     }
 
     private fun editTask(task: Task) {
-
         viewModel.update(task)
-
     }
 
     private fun restartApp() {
@@ -168,5 +177,34 @@ class ListFragment : Fragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+    }
+
+    fun requestDeviceLocationSettings() {
+        val locationRequest = LocationRequest.create().apply {
+            interval = 10000
+            fastestInterval = 5000
+            priority = LocationRequest.PRIORITY_HIGH_ACCURACY
+        }
+
+        val builder = LocationSettingsRequest.Builder()
+            .addLocationRequest(locationRequest)
+
+        val client: SettingsClient = LocationServices.getSettingsClient(requireActivity())
+        val task = client.checkLocationSettings(builder.build())
+
+        task.addOnFailureListener { exception ->
+            if (exception is ResolvableApiException) {
+                try {
+                    exception.startResolutionForResult(
+                        requireActivity(),
+                        100
+                    )
+                } catch (e: Exception) {
+                    Toast.makeText(requireContext(), "Error", Toast.LENGTH_SHORT).show()
+                }
+
+            }
+        }
+
     }
 }
