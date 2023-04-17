@@ -6,6 +6,7 @@ import android.content.IntentSender
 import android.os.Bundle
 import android.view.*
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.view.MenuHost
 import androidx.core.view.MenuProvider
@@ -45,7 +46,10 @@ class ListFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        startLocationTracking()
+        activity?.actionBar?.setDisplayShowHomeEnabled(false)
+        activity?.actionBar?.setDisplayHomeAsUpEnabled(false)
+
+    startLocationTracking()
         setupMenu()
         requestDeviceLocationSettings()
 
@@ -58,15 +62,13 @@ class ListFragment : Fragment() {
 
         val adapter = TasksAdapter(object : TasksActionListener {
             override fun onTaskClicked(task: Task) {
-                Toast.makeText(context, "$task", Toast.LENGTH_SHORT).show()
                 openDetailsFragment(task)
             }
 
             override fun onSwitchClicked(task: Task) {
                 editTask(task)
             }
-        }
-        )
+        })
         with(binding.recyclerView) {
             this.layoutManager = LinearLayoutManager(requireContext())
             this.adapter = adapter
@@ -88,7 +90,6 @@ class ListFragment : Fragment() {
             }
         }
         ///////
-
 
 
         ///////
@@ -179,15 +180,14 @@ class ListFragment : Fragment() {
         _binding = null
     }
 
-    fun requestDeviceLocationSettings() {
+    private fun requestDeviceLocationSettings() {
         val locationRequest = LocationRequest.create().apply {
             interval = 10000
             fastestInterval = 5000
             priority = LocationRequest.PRIORITY_HIGH_ACCURACY
         }
 
-        val builder = LocationSettingsRequest.Builder()
-            .addLocationRequest(locationRequest)
+        val builder = LocationSettingsRequest.Builder().addLocationRequest(locationRequest)
 
         val client: SettingsClient = LocationServices.getSettingsClient(requireActivity())
         val task = client.checkLocationSettings(builder.build())
@@ -195,10 +195,7 @@ class ListFragment : Fragment() {
         task.addOnFailureListener { exception ->
             if (exception is ResolvableApiException) {
                 try {
-                    exception.startResolutionForResult(
-                        requireActivity(),
-                        100
-                    )
+                    exception.startResolutionForResult(requireActivity(), 100)
                 } catch (e: Exception) {
                     Toast.makeText(requireContext(), "Error", Toast.LENGTH_SHORT).show()
                 }

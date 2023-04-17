@@ -79,18 +79,42 @@ class FirebaseTaskStorage @Inject constructor(
             .add(task)
             .addOnSuccessListener {
                 exception = null
-                Log.i("FIREBASE", "successfully added")
+                Log.i(FIREBASE, "successfully added")
             }
             .addOnFailureListener {
                 exception = it
                 result = false
-                Log.e("FIREBASE", "adding failure", it)
+                Log.e(FIREBASE, "adding failure", it)
             }
         return Pair(result, exception)
     }
 
     override fun delete(task: Task) {
-        TODO("Not yet implemented")
+        CoroutineScope(Dispatchers.IO).launch {
+
+            val taskQuery = taskCollectionRef
+                .whereEqualTo("taskId", task.taskId)
+                .whereEqualTo("createdAt", task.createdAt)
+                .get()
+                .await()
+
+            if (taskQuery.documents.isNotEmpty()) {
+                for (document in taskQuery) {
+                    try {
+                        taskCollectionRef.document(document.id)
+                            .delete()
+                            .addOnSuccessListener {
+                                Log.d(DELETE, "DocumentSnapshot successfully deleted!")
+                            }
+                            .addOnFailureListener {
+                                Log.w(DELETE, "Error delete document", it)
+                            }
+                    } catch (e: Exception) {
+                        Log.d(DELETE, "${e.message}")
+                    }
+                }
+            }
+        }
     }
 
     override fun edit(task: Task) {
@@ -109,13 +133,13 @@ class FirebaseTaskStorage @Inject constructor(
                         taskCollectionRef.document(document.id)
                             .update("active", !task.active)
                             .addOnSuccessListener {
-                                Log.d("UPDATE", "DocumentSnapshot successfully updated!")
+                                Log.d(UPDATE, "DocumentSnapshot successfully updated!")
                             }
                             .addOnFailureListener {
-                                Log.w("UPDATE", "Error updating document", it)
+                                Log.w(UPDATE, "Error updating document", it)
                             }
                     } catch (e: Exception) {
-                        Log.d("UPDATE", "${e.message}")
+                        Log.d(UPDATE, "${e.message}")
                     }
                 }
             }
@@ -127,5 +151,10 @@ class FirebaseTaskStorage @Inject constructor(
         TODO("Not yet implemented")
     }
 
+    companion object {
+        const val UPDATE = "UPDATE"
+        const val DELETE = "DELETE"
+        const val FIREBASE = "FIREBASE"
+    }
 
 }

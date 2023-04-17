@@ -128,7 +128,17 @@
             app:layout_constraintTop_toBottomOf="@id/description"
             tools:text="Description" />
 
-
+        <fragment
+            android:layout_margin="48dp"
+            android:id="@+id/smallMap"
+            android:name="com.google.android.gms.maps.SupportMapFragment"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/description_tv"
+            app:layout_constraintBottom_toBottomOf="parent"
+            tools:context=".presentation.MapsFragment" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

@@ -44,4 +44,9 @@ object DomainModule {
         return LogOutUseCase(repository = authorizationRepository)
     }
 
+    @Provides
+    fun provideDeleteTaskUseCase(taskRepository: TaskRepository): DeleteTaskUseCase {
+        return DeleteTaskUseCase(taskRepository = taskRepository)
+    }
+
 }

@@ -36,9 +36,7 @@
         <action
             android:id="@+id/action_loginFragment_to_ListFragment"
             app:destination="@id/ListFragment"
-            app:launchSingleTop="false"
-            app:popUpTo="@id/nav_graph"
-            app:popUpToInclusive="false" />
+            app:popUpToInclusive="true" />
     </fragment>
     <fragment
         android:id="@+id/mapsFragment"
