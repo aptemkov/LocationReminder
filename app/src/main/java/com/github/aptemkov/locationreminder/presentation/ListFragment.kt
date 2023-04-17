@@ -4,6 +4,7 @@ import android.Manifest
 import android.content.Intent
 import android.content.IntentSender
 import android.os.Bundle
+import android.util.Log
 import android.view.*
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -24,6 +25,9 @@ import com.google.android.gms.common.api.ResolvableApiException
 import com.google.android.gms.location.*
 import dagger.hilt.android.AndroidEntryPoint
 import hilt_aggregated_deps._com_github_aptemkov_locationreminder_presentation_ListFragment_GeneratedInjector
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class ListFragment : Fragment() {
@@ -49,7 +53,7 @@ class ListFragment : Fragment() {
         activity?.actionBar?.setDisplayShowHomeEnabled(false)
         activity?.actionBar?.setDisplayHomeAsUpEnabled(false)
 
-    startLocationTracking()
+        startLocationTracking()
         setupMenu()
         requestDeviceLocationSettings()
 
@@ -76,12 +80,30 @@ class ListFragment : Fragment() {
         initViews()
 
         viewModel.tasksLiveData.observe(viewLifecycleOwner) {
-            binding.listEmptyLayout.root.visibility = if (it.isEmpty()) {
-                View.VISIBLE
+            //TODO(temporary log)
+            Log.d("TEMPTODO", "${it.filter { it.active == true }}")
+
+            if (it.isEmpty()) {
+                //TODO(temporary log)
+                Log.d("TEMPTODO", "empty $it")
+                binding.listEmptyLayout.root.visibility = View.VISIBLE
             } else {
-                View.INVISIBLE
+                //TODO(temporary log)
+                Log.d("TEMPTODO", "not empty $it")
+                binding.listEmptyLayout.root.visibility = View.INVISIBLE
+                    CoroutineScope(Dispatchers.IO).launch {
+                    if (it.filter { it.active }.isEmpty()) {
+                        stopLocationTracking()
+                        //TODO(temporary log)
+                        Log.d("TEMPTODO", "stop $it")
+                    } else {
+                        startLocationTracking()
+                        //TODO(temporary log)
+                        Log.d("TEMPTODO", "start $it")
+                    }
+                }
+                adapter.submitList(it)
             }
-            adapter.submitList(it)
         }
 
         viewModel.isAuthorizated.observe(viewLifecycleOwner) {

@@ -64,11 +64,9 @@ class LocationService : Service() {
 
         serviceScope.launch {
             firebaseTaskStorage.startTasksListenerFromService {
-                tasksMutable.value = it.filter { it.active == true }
+                tasksMutable.value = it
             }
         }
-
-        Log.i("SERVICE", "Service started, ${tasksLiveData.value?.first()}")
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -81,6 +79,9 @@ class LocationService : Service() {
 
     @SuppressLint("MissingPermission")
     private fun start() {
+
+        //TODO(temporary log)
+        Log.d("TEMPTODO", "started with list: ${tasksLiveData.value}")
 
         val intent = Intent(this, MainActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
@@ -105,9 +106,7 @@ class LocationService : Service() {
 
                 tasksLiveData.value?.let { list ->
 
-                    Log.i("TESTTEST", "$list")
-
-                    if(list.isEmpty()) return@onEach
+                    //if(list.isEmpty()) return@onEach
 
                     for (task in list) {
                         val taskLocation = Location("").apply {
@@ -144,9 +143,10 @@ class LocationService : Service() {
                         }
                     }
                 }
-                startForeground(1, notification.build())
+
             }.launchIn(serviceScope)
 
+        startForeground(1, notification.build())
 
     }
 
