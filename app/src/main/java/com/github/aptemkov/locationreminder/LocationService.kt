@@ -64,7 +64,7 @@ class LocationService : Service() {
 
         serviceScope.launch {
             firebaseTaskStorage.startTasksListenerFromService {
-                tasksMutable.value = it
+                tasksMutable.value = it.filter { it.active == true }
             }
         }
 
@@ -104,6 +104,11 @@ class LocationService : Service() {
             .onEach { location ->
 
                 tasksLiveData.value?.let { list ->
+
+                    Log.i("TESTTEST", "$list")
+
+                    if(list.isEmpty()) return@onEach
+
                     for (task in list) {
                         val taskLocation = Location("").apply {
                             latitude = task.latitude
@@ -139,10 +144,10 @@ class LocationService : Service() {
                         }
                     }
                 }
+                startForeground(1, notification.build())
             }.launchIn(serviceScope)
 
 
-        startForeground(1, notification.build())
     }
 
 
@@ -154,26 +159,6 @@ class LocationService : Service() {
 
     @SuppressLint("MissingPermission")
     private fun vibrate() {
-/*
-        val vibrator = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            val vibratorManager = getSystemService(VIBRATOR_MANAGER_SERVICE) as VibratorManager
-            vibratorManager.defaultVibrator
-        } else {
-            getSystemService(VIBRATOR_SERVICE) as Vibrator
-        }
-
-        Log.i("VIBRATOR", "has vibrator = ${vibrator.hasVibrator()}")
-        if (vibrator.hasVibrator()) { // Vibrator availability checking
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                vibrator.vibrate(VibrationEffect.createOneShot(500, VibrationEffect.DEFAULT_AMPLITUDE)) // New vibrate method for API Level 26 or higher
-                Log.i("VIBRATOR", "vibrated on sdk >= 26")
-            } else {
-                Log.i("VIBRATOR", "vibrated on sdk < 26")
-                vibrator.vibrate(500) // Vibrate method for below API Level 26
-            }
-        }
-        else Log.i("VIBRATOR", "failed")
-*/
 
         val vibrator = ContextCompat.getSystemService(this, Vibrator::class.java) as Vibrator
 

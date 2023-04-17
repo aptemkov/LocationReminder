@@ -80,4 +80,7 @@
     <string name="reminders_title">Reminders</string>
     <string name="range">Range</string>
     <string name="gps_enabled_successfully">GPS enabled successfully</string>
+    <string name="add_new_task">Add new task</string>
+    <string name="delete">Delete</string>
+    <string name="are_you_sure_you_want_to_delete_task">Are you sure you want to delete the task?</string>
 </resources>
