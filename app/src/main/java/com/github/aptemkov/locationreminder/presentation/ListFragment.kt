@@ -32,6 +32,7 @@ import kotlinx.coroutines.launch
 @AndroidEntryPoint
 class ListFragment : Fragment() {
 
+    private var serviceIsActive = false
 
     private val viewModel: ListViewModel by activityViewModels()
 
@@ -133,7 +134,7 @@ class ListFragment : Fragment() {
     }
 
     private fun restartApp() {
-        stopLocationTracking()
+        if(serviceIsActive) stopLocationTracking()
         val intent = Intent(requireContext(), MainActivity::class.java)
         requireActivity().finish()
         startActivity(intent)
@@ -184,6 +185,7 @@ class ListFragment : Fragment() {
     }
 
     private fun stopLocationTracking() {
+        serviceIsActive = false
         Intent(requireContext(), LocationService::class.java).apply {
             action = LocationService.ACTION_STOP
             requireActivity().startService(this)
@@ -191,6 +193,7 @@ class ListFragment : Fragment() {
     }
 
     private fun startLocationTracking() {
+        serviceIsActive = true
         Intent(requireContext(), LocationService::class.java).apply {
             action = LocationService.ACTION_START
             requireActivity().startService(this)
