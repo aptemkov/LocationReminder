@@ -51,6 +51,8 @@ class LocationService : Service() {
     private val tasksMutable = MutableLiveData<List<Task>>()
     val tasksLiveData: LiveData<List<Task>> get() = tasksMutable
 
+    private var serviceIsActive = false
+
     override fun onBind(p0: Intent?): IBinder? {
         return null
     }
@@ -79,6 +81,7 @@ class LocationService : Service() {
 
     @SuppressLint("MissingPermission")
     private fun start() {
+        serviceIsActive = true
 
         //TODO(temporary log)
         Log.d("TEMPTODO", "started with list: ${tasksLiveData.value}")
@@ -179,8 +182,9 @@ class LocationService : Service() {
 
 
     private fun stop() {
-        stopForeground(true)
-        stopSelf()
+            serviceIsActive = false
+            stopForeground(true)
+            stopSelf()
     }
 
     override fun onDestroy() {
